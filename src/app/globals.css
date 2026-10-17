@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* Tokens del tema oscuro de codebook — todo el color vive aquí */
+@theme {
+	/* Superficies */
+	--color-bg: #0a0b0e;
+	--color-surface: #12151a;
+	--color-border: #242a33;
+
+	/* Texto */
+	--color-text: #e7eaf0;
+	--color-muted: #8f9aab;
+
+	/* Acento */
+	--color-accent: #7c5cff;
+}
+
+/* Base del documento */
+html {
+	color-scheme: dark;
+}
+
+body {
+	font-family:
+		ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* El código siempre en monoespaciada */
+code,
+pre {
+	font-family:
+		ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
