@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 // Tipos
 import type { AnalisisState } from "@/lib/analisis";
 // Datos
-import { MAX_CODE_LENGTH, summarize } from "@/lib/summarize";
+import { analizarConIA, MAX_CODE_LENGTH, type Summary } from "@/lib/summarize";
 // Supabase
 import { createClient } from "@/lib/supabase/server";
 
@@ -35,15 +35,16 @@ export async function analizarYGuardar(
 		};
 	}
 
-	// 2. Pide el resumen a la IA (mock hasta la F8)
-	let resumen: Awaited<ReturnType<typeof summarize>>;
+	// 2. Pide el resumen a la IA real (codebook-api → Groq)
+	let resumen: Summary;
 	try {
-		resumen = await summarize(code);
+		resumen = await analizarConIA(code);
 	} catch (err) {
+		// El detalle va a los logs; al usuario le damos un mensaje claro
+		console.error("[analizarYGuardar]", err);
 		return {
 			...VACIO,
-			error:
-				err instanceof Error ? err.message : "Ocurrió un error inesperado.",
+			error: "No se pudo obtener la explicación. Inténtalo de nuevo.",
 		};
 	}
 
