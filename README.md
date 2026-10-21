@@ -12,14 +12,15 @@ El objetivo es tener una **memoria de código propia**: cada snippet queda ligad
 - **Colección personal**: tus snippets se guardan en tu cuenta, no en el navegador.
 - **Modo invitado**: úsala sin registrarte para probar el resumen (no se guarda nada).
 - **Aislamiento con RLS**: cada usuario solo puede ver y borrar sus propios snippets.
+- **Rate limiting**: límites por usuario/IP y globales para proteger la cuota de IA, con Redis y fallback local.
 - **Paginación numerada**: navega por tu colección con flechas, números y salto directo.
 - **Copiar con un clic**: copia el código o la explicación desde cada tarjeta.
 - **Tema oscuro**: interfaz simple y oscura, pensada para leer código.
 
 ## Secciones
 
-1. **Formulario**: pega el fragmento y pulsa «Analizar y Guardar».
-2. **Resultado**: la explicación del análisis actual, con el lenguaje detectado.
+1. **Formulario**: pega el fragmento y pulsa «Analizar»; con sesión, después «Guardar snippet».
+2. **Resultado**: la explicación del análisis actual, con el lenguaje detectado y el código congelado.
 3. **Tus snippets**: tu colección paginada de 5 en 5, con copiar y borrar.
 4. **Acceso**: registro e inicio de sesión con correo o con Google.
 5. **Modo invitado**: la lista queda bloqueada hasta que inicies sesión.
@@ -28,19 +29,23 @@ El objetivo es tener una **memoria de código propia**: cada snippet queda ligad
 
 - **Probar sin cuenta**: entra, pega código y mira la explicación (no se guarda).
 - **Crear cuenta**: regístrate con correo y contraseña o con tu cuenta de Google.
-- **Guardar**: con la sesión iniciada, cada análisis se guarda en tu colección.
+- **Guardar**: con la sesión iniciada, analiza el código y pulsa «Guardar snippet».
 - **Consultar**: la lista muestra tus snippets, lo más nuevo primero.
-- **Copiar y borrar**: cada tarjeta tiene «⧉ código» y 🗑.
+- **Copiar y borrar**: cada tarjeta tiene acciones para copiar el código y borrar el snippet.
 
 ## Tecnologías Utilizadas
 
 - **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS 4
 - **Backend**: Next.js Server Actions y Route Handlers
 - **Base de datos y Auth**: Supabase (Postgres + Row Level Security + Supabase Auth)
-- **IA**: microservicio en Python (FastAPI + Groq) *(en desarrollo)*
+- **Rate limiting**: Upstash Redis + `@upstash/ratelimit` con fallback en memoria
+- **Emails**: Resend vía SMTP de Supabase Auth
+- **IA**: microservicio en Python (FastAPI + Groq) integrado con reintentos
+- **Validación**: Zod
+- **Iconos**: Lucide
 - **Tipos**: generados desde el esquema (`supabase gen types`)
 - **Herramientas**: Bun, Biome, TypeScript
-- **Infra & CI/CD**: Vercel *(en desarrollo)*
+- **Infra & CI/CD**: Vercel + Supabase + Upstash + Railway
 
 ## Instalación
 
@@ -70,6 +75,9 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=tu_publishable_key
 
 CODEBOOK_API_URL=http://localhost:8000
 CODEBOOK_API_KEY=tu_api_key
+
+UPSTASH_REDIS_REST_URL=tu_url_de_upstash
+UPSTASH_REDIS_REST_TOKEN=tu_token_de_upstash
 ```
 
 5. **Iniciar el Proyecto**:
@@ -80,7 +88,12 @@ bun run dev
 
 ## Despliegue
 
-*(pendiente — se completa en la fase de despliegue: Vercel + Supabase cloud)*
+Producción: [codebook-ivndv.vercel.app](https://codebook-ivndv.vercel.app)
+
+### Emails
+
+En local, Supabase usa Mailpit (`http://localhost:54324`). En producción, Supabase Auth envía los correos por Resend:
+
 
 ## Licencia
 

@@ -54,8 +54,10 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 | **Lenguaje** | **TypeScript** | Modo estricto (`strict: true`) |
 | **Linter/Formatter** | **Biome 2** | `biome.json` (tabs + comillas dobles) |
 | **Auth + DB** | **Supabase** | *Fase 6* — `@supabase/ssr` + RLS por usuario |
-| **IA** | **codebook-api** (FastAPI) | *Fase 8* — Groq `openai/gpt-oss-20b` |
-| **Deploy** | **Vercel** | *Fase 9* |
+| **Rate limiting** | **Upstash Redis** | Free tier + fallback en memoria |
+| **Emails** | **Resend** | SMTP de Supabase Auth en producción |
+| **IA** | **codebook-api** (FastAPI) | Groq `openai/gpt-oss-20b` · integrada con reintentos |
+| **Deploy** | **Vercel** | Producción: `https://codebook-ivndv.vercel.app` |
 
 ---
 
@@ -65,35 +67,56 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 codebook/
 ├── src/
 │   ├── proxy.ts               → Proxy de Next 16 (refresca la sesión de Supabase)
-│   ├── app/
+│   ├── app/                   → Adaptador de entrada (Next)
 │   │   ├── layout.tsx         → layout raíz (html/body, metadata, tema)
 │   │   ├── page.tsx           → inicio (sesión + primera página de snippets)
-│   │   ├── icon.svg           → favicon
-│   │   ├── actions.ts         → Server Actions (analizar+guardar, borrar)
+│   │   ├── actions.ts         → Server Actions delgadas
+│   │   ├── error.tsx          → fallback de errores no controlados
+│   │   ├── loading.tsx        → esqueleto mientras carga la página
 │   │   ├── globals.css        → Tailwind 4 + tokens del tema oscuro
 │   │   ├── login/             → entrar / crear cuenta (page · AuthForm · actions · types)
 │   │   └── auth/callback/     → route handler que cambia el `code` por sesión
-│   ├── components/
-│   │   ├── CodebookApp.tsx    → panel: formulario + lista + paginación
-│   │   ├── Header.tsx         → barra superior (logo + sesión) · Server Component
-│   │   ├── SnippetForm.tsx    → pegar código + analizar (Server Action)
-│   │   ├── SnippetResult.tsx  → panel del análisis actual
-│   │   ├── SnippetList.tsx    → lista de snippets + estado vacío
-│   │   ├── SnippetCard.tsx    → tarjeta de un snippet
-│   │   ├── Paginacion.tsx     → flechas + 3 números + salto manual
-│   │   ├── LockedSnippets.tsx → lista bloqueada para invitados
-│   │   ├── FechaRelativa.tsx  → "hace X" calculado en el cliente
-│   │   └── ui/                → Badge, CopyButton (compartidos)
-│   └── lib/
-│       ├── auth.ts            → obtenerUsuario() (verificado con getClaims)
-│       ├── supabase/          → client.ts · server.ts · proxy.ts (@supabase/ssr)
-│       ├── snippets-db.ts     → consultas a Postgres (RLS) · paginación (offset + count)
+│   ├── components/            → Adaptador de entrada (UI)
+│   │   ├── CodebookApp.tsx
+│   │   ├── Header.tsx
+│   │   ├── SnippetForm.tsx
+│   │   ├── snippet-form-state.ts → reducer del flujo analizar → guardar
+│   │   ├── SnippetResult.tsx
+│   │   ├── SnippetList.tsx
+│   │   ├── SnippetCard.tsx
+│   │   ├── Paginacion.tsx
+│   │   ├── LockedSnippets.tsx
+│   │   ├── FechaRelativa.tsx
+│   │   └── ui/                → Badge, CopyButton
+│   ├── core/                  → Núcleo hexagonal
+│   │   ├── domain/
+│   │   │   ├── snippet.ts     → Snippet, NuevoSnippet, límites
+│   │   │   ├── usuario.ts
+│   │   │   ├── errors.ts      → ErrorDominio
+│   │   │   ├── result.ts      → Result<T, E>
+│   │   │   ├── validar-codigo.ts → validación compartida del código
+│   │   │   └── ports/         → SnippetRepository, SessionReader, SummaryClient, AuthGateway
+│   │   └── application/       → Casos de uso
+│   │       ├── analizar.ts
+│   │       ├── guardar-snippet.ts
+│   │       ├── listar-snippets.ts
+│   │       ├── borrar-snippet.ts
+│   │       ├── autenticar.ts
+│   │       └── dto.ts
+│   ├── adapters/
+│   │   ├── inbound/next/
+│   │   │   ├── origen.ts      → origen absoluto para redirects
+│   │   │   ├── rate-limit.ts  → identidad + fallback local del rate limit
+│   │   │   └── schemas.ts     → validación Zod de entradas
+│   │   └── outbound/
+│   │       ├── supabase/      → client, server, proxy, repos, auth, sesión
+│   │       ├── upstash/       → rate limit distribuido con Redis
+│   │       └── http/          → cliente de codebook-api + esquema Zod
+│   ├── composition/
+│   │   └── container.ts       → composition root por request
+│   └── lib/                   → Generado y utilidades puras
 │       ├── database.types.ts  → tipos generados por `bun run db:types`
-│       ├── analisis.ts        → estado de la Server Action de analizar
-│       ├── fechas.ts          → helpers de fecha (solo cliente: usa Date.now())
-│       ├── summarize.ts       → mock de la IA · contrato { explanation, language }
-│       ├── snippets.ts        → tipo Snippet + tamaño de página
-│       └── usuario.ts         → tipo Usuario
+│       └── fechas.ts          → helpers de fecha (solo cliente: usa Date.now())
 ├── supabase/
 │   ├── config.toml            → config local (auth, providers, puertos)
 │   └── migrations/            → SQL versionado (tabla snippets + RLS)
@@ -102,7 +125,7 @@ codebook/
 └── next.config.ts             → configuración de Next.js (cacheComponents)
 ```
 
-> Previsto: `src/lib/supabase/` (cliente SSR) y `src/app/actions.ts` (Server Actions) en la fase de datos reales.
+> Hexagonal: `core` no conoce Next, Supabase ni `fetch`; `adapters/outbound` implementa los puertos; `app` y `components` son adaptadores de entrada; `composition` une todo por request. `lib` solo contiene lo generado y utilidades puras.
 
 ---
 
@@ -148,31 +171,3 @@ bun run format
 * **PROHIBIDO hacer commits o push sin la aprobación explícita del usuario.**
 * **Flujo de ramas:** desarrollo en `develop`; merge a `main` solo tras aprobación.
 * **Mensajes de commit:** *Conventional Commits* en minúsculas y español (`feat: ...`, `fix: ...`, `chore: ...`).
-
-### 6.4 Fases del Proyecto
-
-> El trabajo se hace **fase por fase**, con revisión del usuario entre cada una.
-
-| Fase | Alcance | Estado |
-| :--- | :--- | :--- |
-| **F0** | Setup (proyecto, Biome, AGENTS, env) | ✅ |
-| **F1** | Shell (layout, tema oscuro, header) | ✅ |
-| **F2** | Formulario (`SnippetForm`) | ✅ |
-| **F3** | Resultado del análisis (mock) | ✅ |
-| **F4** | Lista de snippets (mock) | ✅ |
-| **F5** | Invitado vs logueado (mock) | ✅ |
-| **F6a** | **Auth email + contraseña** (Supabase + `@supabase/ssr`) | ✅ |
-| **F6b** | Google OAuth | ✅ |
-| **F7** | **Datos reales** (tabla + RLS + paginación) | ✅ |
-| **F8** | IA real (`codebook-api`) | ⏳ |
-| **F9** | Deploy (Vercel) | ⏳ |
-
-> **Notas de Next 16:** el middleware ahora es **`src/proxy.ts`**; con `cacheComponents` ya **no existe** `export const dynamic` → se usa **`export const instant = false`** en las páginas que dependen de la sesión.
-
-> **⚠️ Gotcha del login local:** `site_url` y `additional_redirect_urls` en `supabase/config.toml` deben usar **el mismo host** con el que abres la app (`http://localhost:3000/**`). Si el `redirectTo` no está permitido, Supabase cae al `site_url` y **no** ejecuta `/auth/callback` → vuelves a la home **sin sesión**.
->
-> La lista de snippets se pagina de **5 en 5** con `?pagina=N` (offset + `count`).
->
-> **🔄 Tipos:** `src/lib/database.types.ts` es **generado**. Cada vez que cambies el esquema (nueva migración) corre **`bun run db:types`**, o los tipos quedan viejos y engañan. Los clientes de Supabase están tipados con `<Database>`.
->
-> **⚠️ `Date.now()` y `getClaims()`:** `obtenerUsuario()` usa `getClaims()`, que lee la hora del sistema. Si se ejecuta durante el prerender, Next 16 lanza *"encountered the unstable value `Date.now()`"*. Por eso las páginas que leen la sesión arrancan con **`await connection()`** (detiene el prerender ahí). Los helpers de fecha con `Date.now()` viven en `src/lib/fechas.ts` (solo cliente).
