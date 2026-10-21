@@ -4,9 +4,10 @@ import { connection } from "next/server";
 // Componentes
 import { CodebookApp } from "@/components/CodebookApp";
 import { Header } from "@/components/Header";
-// Datos
-import { obtenerUsuario } from "@/lib/auth";
-import { listarSnippets } from "@/lib/snippets-db";
+// Infraestructura
+import { crearContenedor } from "@/composition/container";
+// Aplicación
+import { listarSnippets } from "@/core/application/listar-snippets";
 
 // La sesión se resuelve en cada request (getClaims usa Date.now())
 export const instant = false;
@@ -23,13 +24,14 @@ export default async function Home(props: PageProps<"/">) {
 	await connection();
 
 	// 1. Resuelve la sesión y la página pedida
-	const usuario = await obtenerUsuario();
+	const deps = await crearContenedor();
+	const usuario = await deps.sesion.obtenerUsuario();
 	const params = await props.searchParams;
 	const pedida = numeroPagina(params.pagina);
 
 	// 2. Trae la página de snippets (solo si hay sesión)
 	const pagina = usuario
-		? await listarSnippets(pedida)
+		? await listarSnippets(pedida, deps.snippets)
 		: { snippets: [], pagina: 1, total: 0, totalPaginas: 1 };
 
 	// 3. Si la página pedida ya no existe (p. ej. borró lo último), vuelve a la válida

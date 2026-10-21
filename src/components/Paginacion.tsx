@@ -1,4 +1,7 @@
 // Next
+
+// Iconos
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 const claseNumero =
@@ -42,11 +45,11 @@ export function Paginacion({
 						aria-label="Página anterior"
 						className={claseNumero}
 					>
-						←
+						<ChevronLeft size={16} aria-hidden />
 					</Link>
 				) : (
 					<span aria-hidden className={claseFlechaDeshabilitada}>
-						←
+						<ChevronLeft size={16} aria-hidden />
 					</span>
 				)}
 
@@ -79,11 +82,11 @@ export function Paginacion({
 						aria-label="Página siguiente"
 						className={claseNumero}
 					>
-						→
+						<ChevronRight size={16} aria-hidden />
 					</Link>
 				) : (
 					<span aria-hidden className={claseFlechaDeshabilitada}>
-						→
+						<ChevronRight size={16} aria-hidden />
 					</span>
 				)}
 

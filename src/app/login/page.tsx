@@ -1,10 +1,11 @@
 // Next
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { connection } from "next/server";
 // Componentes
 import { Header } from "@/components/Header";
-// Datos
-import { obtenerUsuario } from "@/lib/auth";
+// Infraestructura
+import { crearContenedor } from "@/composition/container";
 // Locales
 import { AuthForm } from "./AuthForm";
 
@@ -18,7 +19,11 @@ export const instant = false;
 export default async function LoginPage() {
 	// El prerender se detiene aquí
 	await connection();
-	const usuario = await obtenerUsuario();
+	const deps = await crearContenedor();
+	const usuario = await deps.sesion.obtenerUsuario();
+
+	// Si ya hay sesión, el formulario de entrada no tiene sentido
+	if (usuario) redirect("/");
 
 	return (
 		<>

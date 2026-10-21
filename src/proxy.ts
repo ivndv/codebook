@@ -1,7 +1,7 @@
 // Next
 import type { NextRequest } from "next/server";
 // Sesión
-import { actualizarSesion } from "@/lib/supabase/proxy";
+import { actualizarSesion } from "@/adapters/outbound/supabase/proxy";
 
 // Proxy de Next 16 (antes "middleware"): mantiene viva la sesión de Supabase
 export async function proxy(request: NextRequest) {

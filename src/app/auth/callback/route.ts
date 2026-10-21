@@ -1,13 +1,15 @@
 // Next
 import { type NextRequest, NextResponse } from "next/server";
 // Supabase
-import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/adapters/outbound/supabase/server";
 
 // Intercambia el code (OAuth de Google / confirmación de email) por una sesión
 export async function GET(request: NextRequest) {
 	const { searchParams, origin } = new URL(request.url);
 	const code = searchParams.get("code");
-	const next = searchParams.get("next") ?? "/";
+	const nextParam = searchParams.get("next") ?? "/";
+	const next =
+		nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/";
 
 	if (code) {
 		const supabase = await createClient();

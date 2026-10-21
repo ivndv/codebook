@@ -1,5 +1,7 @@
 "use client";
 
+// React
+import { useState } from "react";
 // Acciones
 import { borrarSnippet } from "@/app/actions";
 // Componentes
@@ -8,8 +10,8 @@ import { Paginacion } from "@/components/Paginacion";
 import { SnippetForm } from "@/components/SnippetForm";
 import { SnippetList } from "@/components/SnippetList";
 // Tipos
-import type { Snippet } from "@/lib/snippets";
-import type { Usuario } from "@/lib/usuario";
+import type { Snippet } from "@/core/domain/snippet";
+import type { Usuario } from "@/core/domain/usuario";
 
 // Panel de la app: formulario + lista paginada.
 // Los snippets vienen de Postgres (Server Component); al guardar o borrar,
@@ -29,15 +31,31 @@ export function CodebookApp({
 }) {
 	// Estado
 	const logueado = usuario !== null;
+	const [eliminandoId, setEliminandoId] = useState<string | null>(null);
+	const [errorBorrado, setErrorBorrado] = useState<string | null>(null);
 
 	// Handlers
 	async function eliminar(id: string) {
-		await borrarSnippet(id);
+		if (!window.confirm("¿Eliminar este snippet? No se puede deshacer."))
+			return;
+
+		setErrorBorrado(null);
+		setEliminandoId(id);
+
+		try {
+			const { error } = await borrarSnippet(id);
+			if (error) setErrorBorrado(error);
+		} catch (error) {
+			console.error("[eliminar]", error);
+			setErrorBorrado("No se pudo borrar el snippet.");
+		} finally {
+			setEliminandoId(null);
+		}
 	}
 
 	return (
 		<div className="space-y-12">
-			<SnippetForm />
+			<SnippetForm logueado={logueado} />
 
 			<section className="space-y-4 border-t border-border pt-10">
 				<h2 className="text-sm font-semibold tracking-tight">
@@ -49,7 +67,20 @@ export function CodebookApp({
 
 				{logueado ? (
 					<>
-						<SnippetList snippets={snippets} onDelete={eliminar} />
+						{errorBorrado && (
+							<p
+								role="alert"
+								className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+							>
+								{errorBorrado}
+							</p>
+						)}
+
+						<SnippetList
+							snippets={snippets}
+							onDelete={eliminar}
+							eliminandoId={eliminandoId}
+						/>
 						<Paginacion pagina={pagina} totalPaginas={totalPaginas} />
 					</>
 				) : (

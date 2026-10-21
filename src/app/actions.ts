@@ -2,100 +2,98 @@
 
 // Next
 import { revalidatePath } from "next/cache";
-// Tipos
-import type { AnalisisState } from "@/lib/analisis";
-// Datos
-import { analizarConIA, MAX_CODE_LENGTH, type Summary } from "@/lib/summarize";
-// Supabase
-import { createClient } from "@/lib/supabase/server";
+// Infraestructura
+import { limitarAnalisis } from "@/adapters/inbound/next/rate-limit";
+import {
+	codigoEntradaSchema,
+	datosGuardadoSchema,
+	idSnippetSchema,
+} from "@/adapters/inbound/next/schemas";
+import { crearContenedor } from "@/composition/container";
+// Aplicación
+import { analizar as analizarCaso } from "@/core/application/analizar";
+import { borrarSnippet as borrarSnippetCaso } from "@/core/application/borrar-snippet";
+import type {
+	ResultadoAnalisisAccion,
+	ResultadoGuardadoAccion,
+} from "@/core/application/dto";
+import { guardarSnippet as guardarSnippetCaso } from "@/core/application/guardar-snippet";
 
-// Estado inicial vacío del formulario
-const VACIO: AnalisisState = {
-	error: null,
-	explanation: null,
-	language: null,
-	guardado: false,
-};
+// Analiza el fragmento sin tocar la base. El invitado también puede usarlo
+export async function analizar(
+	code: unknown,
+): Promise<ResultadoAnalisisAccion> {
+	const entrada = codigoEntradaSchema.safeParse(code);
 
-// Analiza el fragmento y, si hay sesión, lo guarda en Postgres (el invitado no guarda)
-export async function analizarYGuardar(
-	_previo: AnalisisState,
-	formData: FormData,
-): Promise<AnalisisState> {
-	const code = String(formData.get("code") ?? "").trim();
-
-	// 1. Valida el código
-	if (!code) {
-		return { ...VACIO, error: "El código está vacío." };
+	if (!entrada.success) {
+		return { ok: false, error: "El código no es válido." };
 	}
-	if (code.length > MAX_CODE_LENGTH) {
+
+	// 1. Resuelve la identidad y corta el abuso antes de gastar IA
+	const deps = await crearContenedor();
+	const usuario = await deps.sesion.obtenerUsuario().catch(() => null);
+	const limite = await limitarAnalisis(usuario?.id ?? null);
+
+	if (!limite.permitido) {
 		return {
-			...VACIO,
-			error: `El código supera los ${MAX_CODE_LENGTH.toLocaleString("es")} caracteres.`,
+			ok: false,
+			error: limite.mensaje ?? "No se pudo comprobar el límite de análisis.",
 		};
 	}
 
-	// 2. Pide el resumen a la IA real (codebook-api → Groq)
-	let resumen: Summary;
-	try {
-		resumen = await analizarConIA(code);
-	} catch (err) {
-		// El detalle va a los logs; al usuario le damos un mensaje claro
-		console.error("[analizarYGuardar]", err);
-		return {
-			...VACIO,
-			error: "No se pudo obtener la explicación. Inténtalo de nuevo.",
-		};
-	}
-
-	const supabase = await createClient();
-	const { data: sesion } = await supabase.auth.getClaims();
-
-	// 3. Sin sesión solo se muestra la explicación, no se guarda nada
-	if (!sesion?.claims) {
-		return {
-			error: null,
-			explanation: resumen.explanation,
-			language: resumen.language,
-			guardado: false,
-		};
-	}
-
-	// 4. Inserta en Postgres (user_id lo pone la DB con auth.uid(); RLS lo valida)
-	const { error } = await supabase.from("snippets").insert({
-		code,
-		explanation: resumen.explanation,
-		language: resumen.language,
+	// 2. Pide la explicación a codebook-api
+	const resultado = await analizarCaso(entrada.data, {
+		resumen: deps.resumen,
 	});
 
-	if (error) {
-		return {
-			error: `No se pudo guardar: ${error.message}`,
-			explanation: resumen.explanation,
-			language: resumen.language,
-			guardado: false,
-		};
+	if (!resultado.ok) {
+		return { ok: false, error: resultado.error.mensaje };
 	}
 
-	// 5. Refresca la lista (Server Component) con el snippet nuevo dentro
+	return { ok: true, ...resultado.valor };
+}
+
+// Guarda un snippet ya analizado. Solo funciona con sesión
+export async function guardarSnippet(
+	datos: unknown,
+): Promise<ResultadoGuardadoAccion> {
+	const entrada = datosGuardadoSchema.safeParse(datos);
+
+	if (!entrada.success) {
+		return { ok: false, error: "Los datos del snippet no son válidos." };
+	}
+
+	const deps = await crearContenedor();
+	const resultado = await guardarSnippetCaso(entrada.data, deps);
+
+	if (!resultado.ok) {
+		return { ok: false, error: resultado.error.mensaje };
+	}
+
+	// Refresca la lista para que aparezca el snippet recién guardado
 	revalidatePath("/");
 
-	return {
-		error: null,
-		explanation: resumen.explanation,
-		language: resumen.language,
-		guardado: true,
-	};
+	return { ok: true };
 }
 
 // Borra un snippet del usuario. RLS impide borrar los de otro
 export async function borrarSnippet(
-	id: string,
+	id: unknown,
 ): Promise<{ error: string | null }> {
-	const supabase = await createClient();
-	const { error } = await supabase.from("snippets").delete().eq("id", id);
+	const entrada = idSnippetSchema.safeParse(id);
 
-	if (error) return { error: error.message };
+	if (!entrada.success) {
+		return { error: "El snippet no es válido." };
+	}
+
+	const deps = await crearContenedor();
+
+	try {
+		await borrarSnippetCaso(entrada.data, deps.snippets);
+	} catch (error) {
+		console.error("[borrarSnippet]", error);
+		return { error: "No se pudo borrar el snippet." };
+	}
 
 	revalidatePath("/");
 	return { error: null };

@@ -1,12 +1,14 @@
 "use client";
 
+// Iconos
+import { Check, Copy } from "lucide-react";
 // React
 import { useEffect, useState } from "react";
 
 // Botón de copiar con feedback "¡Copiado!" — lo comparten el resultado y las tarjetas
 export function CopyButton({
 	text,
-	label = "⧉ Copiar",
+	label = "Copiar",
 	ariaLabel = "Copiar al portapapeles",
 }: {
 	text: string;
@@ -39,8 +41,13 @@ export function CopyButton({
 				type="button"
 				onClick={copiar}
 				aria-label={ariaLabel}
-				className="rounded-md border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-accent hover:text-text"
+				className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-accent hover:text-text"
 			>
+				{copiado ? (
+					<Check size={14} aria-hidden />
+				) : (
+					<Copy size={14} aria-hidden />
+				)}
 				{copiado ? "¡Copiado!" : label}
 			</button>
 			<span aria-live="polite" className="sr-only">
