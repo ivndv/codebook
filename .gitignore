@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # supabase CLI (estado local, no se versiona)
 supabase/.temp/
@@ -46,3 +47,6 @@ next-env.d.ts
 
 # Playwright MCP (capturas temporales)
 .playwright-mcp/
+
+# codegraph
+/.codegraph/
