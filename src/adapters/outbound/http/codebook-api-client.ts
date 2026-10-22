@@ -1,5 +1,7 @@
 // Esquemas
 import { resumenSchema } from "@/adapters/outbound/http/resumen-schema";
+// Dominio
+import { ErrorResumenIA } from "@/core/domain/errors";
 // Tipos
 import type { SummaryClient } from "@/core/domain/ports/summary-client";
 import type { Summary } from "@/core/domain/snippet";
@@ -9,9 +11,9 @@ const INTENTOS = 3;
 const ESPERA_BASE_MS = 1500;
 const TIMEOUT_MS = 10_000;
 
-// Un 408 o un 429 también son temporales
+// Un 408 o un 5xx también son temporales
 function esReintentable(status: number): boolean {
-	return status >= 500 || status === 408 || status === 429;
+	return status >= 500 || status === 408;
 }
 
 // Adaptador HTTP de codebook-api (SOLO servidor; la key nunca llega al navegador)
@@ -51,7 +53,7 @@ export class CodebookApiClient implements SummaryClient {
 			}
 
 			// 2. Espera creciente antes del siguiente intento
-			let espera = ESPERA_BASE_MS * intento;
+			const espera = ESPERA_BASE_MS * intento;
 
 			if (res) {
 				// 3. Todo bien → valida y devuelve el resumen
@@ -69,21 +71,20 @@ export class CodebookApiClient implements SummaryClient {
 					};
 				}
 
-				// 4. 4xx no reintentable (key inválida, código rechazado)
+				// 4. 429 es el límite de la IA: no se reintenta
+				if (res.status === 429) {
+					throw new ErrorResumenIA(
+						"La IA alcanzó su límite. Inténtalo más tarde.",
+					);
+				}
+
+				// 5. Otros 4xx no son reintentables (key inválida, código rechazado)
 				if (!esReintentable(res.status)) {
 					throw new Error(`codebook-api respondió ${res.status}`);
 				}
 
-				// 5. 5xx, 408 o 429 → puede estar despertando o limitando
+				// 6. 5xx o 408 → puede estar despertando
 				ultimoError = new Error(`codebook-api respondió ${res.status}`);
-
-				if (res.status === 429) {
-					const segundos = Number(res.headers.get("retry-after"));
-
-					if (Number.isFinite(segundos) && segundos > 0) {
-						espera = Math.min(segundos * 1000, 10_000);
-					}
-				}
 			}
 
 			if (intento < INTENTOS) {

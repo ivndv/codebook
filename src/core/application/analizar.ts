@@ -1,5 +1,6 @@
+// Dominio
+import { type ErrorDominio, ErrorResumenIA } from "@/core/domain/errors";
 // Tipos
-import type { ErrorDominio } from "@/core/domain/errors";
 import type { SummaryClient } from "@/core/domain/ports/summary-client";
 import { err, ok, type Result } from "@/core/domain/result";
 import { validarCodigo } from "@/core/domain/validar-codigo";
@@ -33,6 +34,10 @@ export async function analizar(
 			...resumen,
 		});
 	} catch (error) {
+		if (error instanceof ErrorResumenIA) {
+			return err({ tipo: "analisis", mensaje: error.message });
+		}
+
 		console.error("[analizar]", error);
 		return err({
 			tipo: "analisis",
