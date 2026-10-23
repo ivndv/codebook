@@ -20,18 +20,15 @@ import { analizar, guardarSnippet } from "@/app/actions";
 // Componentes
 import { SnippetResult } from "@/components/SnippetResult";
 import { reducer } from "@/components/snippet-form-state";
+// Estilos
+import {
+	botonPrimario,
+	botonSecundario,
+	botonSutil,
+} from "@/components/ui/estilos";
 // Datos
 import { ANALISIS_INICIAL } from "@/core/application/dto";
 import { MAX_CODE_LENGTH } from "@/core/domain/snippet";
-
-const clasePrimaria =
-	"inline-flex items-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40";
-
-const claseSecundaria =
-	"inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm text-muted transition-colors hover:border-accent hover:text-text disabled:cursor-not-allowed disabled:opacity-40";
-
-const claseSutil =
-	"inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-muted transition-colors hover:text-text disabled:cursor-not-allowed disabled:opacity-40";
 
 // Pegar código, analizarlo y guardarlo. El invitado solo analiza
 export function SnippetForm({ logueado }: { logueado: boolean }) {
@@ -182,7 +179,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 				aria-readonly={congelado}
 				placeholder="Pega tu código aquí…"
 				spellCheck={false}
-				className="min-h-[200px] w-full resize-y rounded-lg border border-border bg-surface p-4 text-sm leading-relaxed outline-none transition-colors placeholder:text-muted/70 focus:border-accent read-only:cursor-not-allowed read-only:opacity-80"
+				className="min-h-[200px] w-full resize-y rounded-xl border border-border bg-surface-2 p-4 font-mono text-sm leading-relaxed outline-none transition-colors placeholder:text-muted/60 focus:border-accent read-only:cursor-not-allowed read-only:opacity-70"
 			/>
 
 			{/* Contador + botones */}
@@ -199,7 +196,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 						<button
 							type="submit"
 							disabled={!puedeAnalizar}
-							className={clasePrimaria}
+							className={botonPrimario}
 						>
 							<Sparkles size={16} aria-hidden />
 							Analizar
@@ -207,14 +204,14 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 					)}
 
 					{analizando && (
-						<button type="button" disabled aria-busy className={clasePrimaria}>
+						<button type="button" disabled aria-busy className={botonPrimario}>
 							<LoaderCircle size={16} aria-hidden className="animate-spin" />
 							Analizando…
 						</button>
 					)}
 
 					{guardando && (
-						<button type="button" disabled aria-busy className={clasePrimaria}>
+						<button type="button" disabled aria-busy className={botonPrimario}>
 							<LoaderCircle size={16} aria-hidden className="animate-spin" />
 							Guardando…
 						</button>
@@ -224,7 +221,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 						<button
 							type="button"
 							onClick={() => void guardar()}
-							className={clasePrimaria}
+							className={botonPrimario}
 						>
 							<Save size={16} aria-hidden />
 							Guardar snippet
@@ -235,7 +232,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 						<button
 							type="button"
 							onClick={reintentar}
-							className={claseSecundaria}
+							className={botonSecundario}
 						>
 							<RotateCcw size={16} aria-hidden />
 							Reintentar
@@ -243,7 +240,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 					)}
 
 					{mostrarLimpiar && (
-						<button type="button" onClick={limpiar} className={claseSutil}>
+						<button type="button" onClick={limpiar} className={botonSutil}>
 							<Eraser size={16} aria-hidden />
 							Limpiar
 						</button>
@@ -268,7 +265,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 			{estado.error && (
 				<p
 					role="alert"
-					className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+					className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
 				>
 					{estado.error}
 				</p>
@@ -296,7 +293,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 					<Lock size={14} aria-hidden />
 					<Link
 						href="/login"
-						className="inline-flex items-center gap-1 text-accent hover:underline"
+						className="inline-flex items-center gap-1 text-accent-text hover:underline"
 					>
 						<LogIn size={14} aria-hidden />
 						Inicia sesión

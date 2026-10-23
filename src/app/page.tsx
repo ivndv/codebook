@@ -1,66 +1,90 @@
 // Next
-import { redirect } from "next/navigation";
+
+import { ArrowRight, LogIn } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
 import { connection } from "next/server";
 // Componentes
-import { CodebookApp } from "@/components/CodebookApp";
 import { Header } from "@/components/Header";
 // Infraestructura
 import { crearContenedor } from "@/composition/container";
-// Aplicación
-import { listarSnippets } from "@/core/application/listar-snippets";
 
-// La sesión se resuelve en cada request (getClaims usa Date.now())
+export const metadata: Metadata = {
+	title: "codebook — Tu código, explicado",
+	description:
+		"Pega un fragmento y la IA te devuelve un resumen de una línea. Guárdalo en tu colección personal.",
+};
+
+// La sesión se resuelve en cada request (getHeader)
 export const instant = false;
 
-// Lee ?pagina=N (1-based) con cordura
-function numeroPagina(valor: string | string[] | undefined): number {
-	const texto = Array.isArray(valor) ? valor[0] : valor;
-	const numero = Number.parseInt(texto ?? "1", 10);
-	return Number.isFinite(numero) && numero > 0 ? numero : 1;
-}
+// Pasos del flujo, como píldoras bajo el titular
+const PASOS = [
+	{ numero: "01", texto: "Pega tu código" },
+	{ numero: "02", texto: "Analiza con IA" },
+	{ numero: "03", texto: "Guarda y consulta" },
+];
 
-export default async function Home(props: PageProps<"/">) {
-	// El prerender se detiene aquí: todo lo de abajo corre en cada request
+const ctaPrimario =
+	"inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-hover";
+
+const ctaSecundario =
+	"inline-flex items-center justify-center gap-2 rounded-lg border border-border px-5 py-3 text-sm text-muted transition-colors hover:border-accent hover:text-text";
+
+export default async function LandingPage() {
+	// Solo necesitamos la sesión para el estado del header
 	await connection();
-
-	// 1. Resuelve la sesión y la página pedida
 	const deps = await crearContenedor();
 	const usuario = await deps.sesion.obtenerUsuario();
-	const params = await props.searchParams;
-	const pedida = numeroPagina(params.pagina);
-
-	// 2. Trae la página de snippets (solo si hay sesión)
-	const pagina = usuario
-		? await listarSnippets(pedida, deps.snippets)
-		: { snippets: [], pagina: 1, total: 0, totalPaginas: 1 };
-
-	// 3. Si la página pedida ya no existe (p. ej. borró lo último), vuelve a la válida
-	if (usuario && pedida > pagina.totalPaginas) {
-		redirect(`/?pagina=${pagina.totalPaginas}`);
-	}
 
 	return (
 		<>
 			<Header usuario={usuario} />
 
-			<main className="mx-auto w-full max-w-4xl px-4 py-12 sm:py-16">
-				<div className="mb-10 space-y-3 sm:mb-12">
-					<h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-						Guarda tu código, con su explicación
-					</h1>
-					<p className="max-w-xl text-sm leading-relaxed text-muted">
-						Pega un fragmento y la IA te devuelve un resumen de una línea.
-						Inicia sesión para guardarlo en tu colección.
+			<main className="mx-auto flex w-full max-w-5xl flex-1 items-center px-4 py-16 sm:px-6 sm:py-24">
+				<section className="grid w-full max-w-[54rem] gap-5">
+					<p className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-accent-text">
+						Memoria de código
 					</p>
-				</div>
 
-				<CodebookApp
-					usuario={usuario}
-					snippets={pagina.snippets}
-					total={pagina.total}
-					pagina={pagina.pagina}
-					totalPaginas={pagina.totalPaginas}
-				/>
+					<h1 className="text-[clamp(2.4rem,7vw,4.8rem)] font-bold leading-[0.95] tracking-[-0.055em]">
+						Tu código, <span className="text-accent-text">explicado</span>.
+					</h1>
+
+					<p className="max-w-[42rem] text-[1.02rem] leading-[1.7] text-muted">
+						Pega un fragmento y la IA te devuelve un resumen de una línea.
+						Inicia sesión para guardarlo en tu colección y consultarlo cuando
+						quieras.
+					</p>
+
+					<ol className="mt-2 flex flex-wrap gap-2">
+						{PASOS.map((paso) => (
+							<li
+								key={paso.numero}
+								className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-[0.74rem] text-muted"
+							>
+								<span className="font-mono text-[0.62rem] text-accent-text">
+									{paso.numero}
+								</span>
+								{paso.texto}
+							</li>
+						))}
+					</ol>
+
+					<div className="mt-4 flex flex-wrap items-center gap-3">
+						<Link href="/generador" className={ctaPrimario}>
+							Abrir el generador
+							<ArrowRight size={16} aria-hidden />
+						</Link>
+
+						{!usuario && (
+							<Link href="/login" className={ctaSecundario}>
+								<LogIn size={16} aria-hidden />
+								Iniciar sesión
+							</Link>
+						)}
+					</div>
+				</section>
 			</main>
 		</>
 	);

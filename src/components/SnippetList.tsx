@@ -17,9 +17,11 @@ export function SnippetList({
 }) {
 	if (snippets.length === 0) {
 		return (
-			<div className="rounded-lg border border-dashed border-border p-12 text-center">
-				<Inbox size={32} aria-hidden className="mx-auto text-muted" />
-				<p className="mt-2 text-sm font-medium">Todavía no tienes snippets</p>
+			<div className="rounded-2xl border border-dashed border-border bg-surface/40 p-12 text-center">
+				<span className="mx-auto grid size-12 place-items-center rounded-2xl bg-accent-soft text-accent-text">
+					<Inbox size={24} aria-hidden />
+				</span>
+				<p className="mt-3 text-sm font-medium">Todavía no tienes snippets</p>
 				<p className="mt-1 text-xs text-muted">
 					Pega código arriba, analízalo y guárdalo en tu colección.
 				</p>

@@ -71,7 +71,7 @@ export async function guardarSnippet(
 	}
 
 	// Refresca la lista para que aparezca el snippet recién guardado
-	revalidatePath("/");
+	revalidatePath("/generador");
 
 	return { ok: true };
 }
@@ -95,6 +95,6 @@ export async function borrarSnippet(
 		return { error: "No se pudo borrar el snippet." };
 	}
 
-	revalidatePath("/");
+	revalidatePath("/generador");
 	return { error: null };
 }

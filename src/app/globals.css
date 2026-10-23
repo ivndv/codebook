@@ -1,33 +1,67 @@
 @import "tailwindcss";
 
-/* Tokens del tema oscuro de codebook — todo el color vive aquí */
+/* Tokens del tema oscuro cálido de codebook — todo el color vive aquí */
 @theme {
 	/* Superficies */
-	--color-bg: #0a0b0e;
-	--color-surface: #12151a;
-	--color-border: #242a33;
+	--color-bg: #0f0e12;
+	--color-surface: #17151d;
+	--color-surface-2: #1f1c27;
+	--color-border: #2b2735;
 
 	/* Texto */
-	--color-text: #e7eaf0;
-	--color-muted: #8f9aab;
+	--color-text: #f0edf5;
+	--color-muted: #a49fb2;
 
-	/* Acento */
+	/* Acento (morado) */
 	--color-accent: #7c5cff;
+	--color-accent-hover: #9377ff;
+	--color-accent-soft: #211a3b;
+	--color-accent-text: #b3a3ff;
+
+	/* Profundidad de tarjeta */
+	--shadow-card: 0 20px 45px -25px rgb(0 0 0 / 70%);
+
+	/* Tipografía */
+	--font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+	--font-mono:
+		var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Consolas,
+		monospace;
 }
 
 /* Base del documento */
 html {
 	color-scheme: dark;
+	scroll-behavior: smooth;
 }
 
 body {
-	font-family:
-		ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	font-family: var(--font-sans);
 }
 
 /* El código siempre en monoespaciada */
 code,
 pre {
-	font-family:
-		ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+	font-family: var(--font-mono);
+}
+
+/* Selección y foco con el acento del tema */
+::selection {
+	background: var(--color-accent-soft);
+	color: var(--color-text);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+	outline: 2px solid var(--color-accent);
+	outline-offset: 2px;
+}
+
+/* Respeta a quien prefiere menos movimiento */
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
 }

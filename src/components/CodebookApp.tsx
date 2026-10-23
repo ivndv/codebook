@@ -57,11 +57,14 @@ export function CodebookApp({
 		<div className="space-y-12">
 			<SnippetForm logueado={logueado} />
 
-			<section className="space-y-4 border-t border-border pt-10">
-				<h2 className="text-sm font-semibold tracking-tight">
+			<section
+				id="tus-snippets"
+				className="scroll-mt-24 space-y-4 border-t border-border pt-10"
+			>
+				<h2 className="text-base font-semibold tracking-tight">
 					Tus snippets{" "}
 					{logueado && total > 0 && (
-						<span className="text-muted">({total})</span>
+						<span className="font-normal text-muted">({total})</span>
 					)}
 				</h2>
 
@@ -70,7 +73,7 @@ export function CodebookApp({
 						{errorBorrado && (
 							<p
 								role="alert"
-								className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+								className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
 							>
 								{errorBorrado}
 							</p>

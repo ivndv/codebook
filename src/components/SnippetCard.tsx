@@ -8,6 +8,7 @@ import { useState } from "react";
 import { FechaRelativa } from "@/components/FechaRelativa";
 import { Badge } from "@/components/ui/Badge";
 import { CopyButton } from "@/components/ui/CopyButton";
+import { tarjeta } from "@/components/ui/estilos";
 // Tipos
 import type { Snippet } from "@/core/domain/snippet";
 
@@ -35,7 +36,9 @@ export function SnippetCard({
 		: lineas.slice(0, LINEAS_VISIBLES).join("\n");
 
 	return (
-		<article className="rounded-lg border border-border bg-surface p-4">
+		<article
+			className={`${tarjeta} p-5 transition-colors hover:border-accent/40`}
+		>
 			<header className="mb-3 flex flex-wrap items-center gap-2">
 				{snippet.language && <Badge>{snippet.language}</Badge>}
 				<FechaRelativa iso={snippet.createdAt} />
@@ -53,14 +56,14 @@ export function SnippetCard({
 						aria-busy={eliminando}
 						aria-label="Eliminar el snippet"
 						title="Eliminar el snippet"
-						className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-red-500/60 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40"
+						className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-red-500/60 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40"
 					>
 						{eliminando ? "…" : <Trash2 size={14} aria-hidden />}
 					</button>
 				</span>
 			</header>
 
-			<pre className="overflow-x-auto rounded-md border border-border bg-bg p-3 text-xs leading-relaxed">
+			<pre className="overflow-x-auto rounded-lg border border-border bg-bg p-3.5 text-xs leading-relaxed">
 				<code>{codigoVisible}</code>
 			</pre>
 
@@ -68,7 +71,7 @@ export function SnippetCard({
 				<button
 					type="button"
 					onClick={() => setExpandido((previo) => !previo)}
-					className="mt-2 text-xs text-accent hover:underline"
+					className="mt-2 text-xs text-accent-text hover:underline"
 				>
 					{expandido ? "ver menos" : `ver ${ocultas} líneas más`}
 				</button>

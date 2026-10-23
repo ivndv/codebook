@@ -41,7 +41,7 @@ export function CopyButton({
 				type="button"
 				onClick={copiar}
 				aria-label={ariaLabel}
-				className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-accent hover:text-text"
+				className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-accent hover:text-accent-text"
 			>
 				{copiado ? (
 					<Check size={14} aria-hidden />

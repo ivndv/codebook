@@ -1,42 +1,34 @@
-// Next
-
 // Iconos
-import { BookOpen, LogIn, LogOut } from "lucide-react";
+import { BookOpen, User } from "lucide-react";
 import Link from "next/link";
-// Acciones
-import { cerrarSesion } from "@/app/login/actions";
+// Componentes
+import { MenuSesion } from "@/components/MenuSesion";
 // Tipos
 import type { Usuario } from "@/core/domain/usuario";
 
-// Barra superior: logo y estado de sesión (Server Component)
+// Barra superior fija: marca y acción de sesión (Server Component)
 export function Header({ usuario }: { usuario: Usuario | null }) {
 	return (
-		<header className="border-b border-border">
-			<div className="mx-auto flex h-14 w-full max-w-4xl items-center justify-between px-4">
-				<Link href="/" className="flex items-center gap-2">
-					<BookOpen size={18} aria-hidden />
-					<span className="font-semibold tracking-tight">codebook</span>
+		<header className="sticky top-0 z-40 border-b border-border bg-bg/80 backdrop-blur">
+			<div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between gap-4 px-4 sm:px-6">
+				<Link
+					href="/"
+					className="inline-flex items-center gap-2.5 font-semibold tracking-tight"
+				>
+					<span className="grid size-8 place-items-center rounded-lg bg-accent text-white">
+						<BookOpen size={16} aria-hidden />
+					</span>
+					codebook
 				</Link>
 
 				{usuario ? (
-					<div className="flex items-center gap-3">
-						<span className="text-xs text-muted">{usuario.email}</span>
-						<form action={cerrarSesion}>
-							<button
-								type="submit"
-								className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted transition-colors hover:border-accent hover:text-text"
-							>
-								<LogOut size={16} aria-hidden />
-								Cerrar sesión
-							</button>
-						</form>
-					</div>
+					<MenuSesion email={usuario.email} />
 				) : (
 					<Link
 						href="/login"
-						className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted transition-colors hover:border-accent hover:text-text"
+						className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted transition-colors hover:bg-accent-soft hover:text-text"
 					>
-						<LogIn size={16} aria-hidden />
+						<User size={16} aria-hidden />
 						Iniciar sesión
 					</Link>
 				)}

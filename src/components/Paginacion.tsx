@@ -5,13 +5,13 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 const claseNumero =
-	"flex h-8 w-8 items-center justify-center rounded-md border border-border text-sm text-muted transition-colors hover:border-accent hover:text-text";
+	"flex h-8 w-8 items-center justify-center rounded-lg border border-border text-sm text-muted transition-colors hover:border-accent hover:text-text";
 
 const claseNumeroActual =
-	"flex h-8 w-8 items-center justify-center rounded-md border border-accent bg-accent text-sm font-semibold text-white";
+	"flex h-8 w-8 items-center justify-center rounded-lg border border-accent bg-accent text-sm font-semibold text-white";
 
 const claseFlechaDeshabilitada =
-	"flex h-8 w-8 items-center justify-center rounded-md border border-border text-sm text-muted/30";
+	"flex h-8 w-8 items-center justify-center rounded-lg border border-border text-sm text-muted/30";
 
 // Ventana de hasta 3 números centrada en la página actual
 function ventana(pagina: number, total: number): number[] {
@@ -41,7 +41,7 @@ export function Paginacion({
 				{/* Flecha anterior */}
 				{hayAnterior ? (
 					<Link
-						href={`/?pagina=${pagina - 1}`}
+						href={`/generador?pagina=${pagina - 1}`}
 						aria-label="Página anterior"
 						className={claseNumero}
 					>
@@ -66,7 +66,7 @@ export function Paginacion({
 					) : (
 						<Link
 							key={numero}
-							href={`/?pagina=${numero}`}
+							href={`/generador?pagina=${numero}`}
 							aria-label={`Ir a la página ${numero}`}
 							className={claseNumero}
 						>
@@ -78,7 +78,7 @@ export function Paginacion({
 				{/* Flecha siguiente */}
 				{haySiguiente ? (
 					<Link
-						href={`/?pagina=${pagina + 1}`}
+						href={`/generador?pagina=${pagina + 1}`}
 						aria-label="Página siguiente"
 						className={claseNumero}
 					>
@@ -95,8 +95,12 @@ export function Paginacion({
 				</span>
 			</div>
 
-			{/* Salto manual: formulario GET → /?pagina=N (sin JavaScript) */}
-			<form action="/" method="get" className="flex items-center gap-2">
+			{/* Salto manual: formulario GET → /generador?pagina=N (sin JavaScript) */}
+			<form
+				action="/generador"
+				method="get"
+				className="flex items-center gap-2"
+			>
 				<label htmlFor="pagina" className="text-xs text-muted">
 					Ir a
 				</label>
@@ -107,11 +111,11 @@ export function Paginacion({
 					min={1}
 					max={totalPaginas}
 					defaultValue={pagina}
-					className="w-16 rounded-md border border-border bg-surface px-2 py-1 text-center text-xs outline-none transition-colors focus:border-accent"
+					className="w-16 rounded-lg border border-border bg-surface-2 px-2 py-1 text-center text-xs text-text outline-none transition-colors focus:border-accent"
 				/>
 				<button
 					type="submit"
-					className="rounded-md border border-border px-2 py-1 text-xs text-muted transition-colors hover:border-accent hover:text-text"
+					className="rounded-lg border border-border px-2 py-1 text-xs text-muted transition-colors hover:border-accent hover:text-text"
 				>
 					Ir
 				</button>
