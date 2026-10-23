@@ -1,3 +1,13 @@
+// El captcha no se pudo verificar (bot o token vencido)
+export class ErrorCaptcha extends Error {
+	constructor(
+		mensaje = "No pudimos verificar que no eres un bot. Inténtalo de nuevo.",
+	) {
+		super(mensaje);
+		this.name = "ErrorCaptcha";
+	}
+}
+
 // Error de la IA que se puede mostrar tal cual al usuario
 export class ErrorResumenIA extends Error {
 	constructor(mensaje: string) {

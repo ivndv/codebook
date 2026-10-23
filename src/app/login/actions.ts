@@ -4,53 +4,49 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 // Infraestructura
-import { obtenerOrigen } from "@/adapters/inbound/next/origen";
-import { SupabaseAuthGateway } from "@/adapters/outbound/supabase/auth-gateway";
-import { createClient } from "@/adapters/outbound/supabase/server";
-// Aplicación
-import { autenticar as autenticarCaso } from "@/core/application/autenticar";
+import { credencialesSchema } from "@/adapters/inbound/next/schemas";
 // Tipos
-import type { AuthState } from "./types";
+import type { AuthState } from "@/app/auth-types";
+import { crearContenedor } from "@/composition/container";
+// Aplicación
+import { iniciarSesion as iniciarSesionCaso } from "@/core/application/iniciar-sesion";
 
-// Crea el gateway de auth de esta request
-async function crearGateway(): Promise<SupabaseAuthGateway> {
-	const supabase = await createClient();
-	const origen = await obtenerOrigen();
-
-	return new SupabaseAuthGateway(supabase, origen);
-}
-
-// Entra o crea cuenta según el campo intent del formulario (login | signup)
-export async function autenticar(
+// Inicia sesión con email, contraseña y captcha
+export async function iniciarSesion(
 	_previo: AuthState,
 	formData: FormData,
 ): Promise<AuthState> {
-	const email = String(formData.get("email") ?? "").trim();
-	const password = String(formData.get("password") ?? "");
-	const intencion = formData.get("intent") === "signup" ? "signup" : "login";
-	const gateway = await crearGateway();
-	const resultado = await autenticarCaso(email, password, intencion, gateway);
+	const entrada = credencialesSchema.safeParse({
+		email: String(formData.get("email") ?? "").trim(),
+		password: String(formData.get("password") ?? ""),
+		captchaToken: String(formData.get("captchaToken") ?? ""),
+	});
+
+	if (!entrada.success) {
+		return {
+			error: "Revisa el correo, la contraseña y la verificación.",
+			message: null,
+		};
+	}
+
+	const deps = await crearContenedor();
+	const resultado = await iniciarSesionCaso(entrada.data, deps.auth);
 
 	if (!resultado.ok) {
 		return { error: resultado.error.mensaje, message: null };
 	}
 
-	// Con confirmación por email activada todavía no hay sesión
-	if (resultado.valor.mensaje) {
-		return { error: null, message: resultado.valor.mensaje };
-	}
-
-	// Refresca el layout y vuelve al inicio ya logueado
+	// Refresca el layout y entra directo al generador
 	revalidatePath("/", "layout");
-	redirect("/");
+	redirect("/generador");
 }
 
 // Cierra la sesión actual
 export async function cerrarSesion(): Promise<void> {
-	const gateway = await crearGateway();
+	const deps = await crearContenedor();
 
 	try {
-		await gateway.cerrarSesion();
+		await deps.auth.cerrarSesion();
 	} catch (error) {
 		// La sesión local se limpia igual; solo registramos el fallo remoto
 		console.error("[cerrarSesion]", error);
@@ -62,8 +58,8 @@ export async function cerrarSesion(): Promise<void> {
 
 // Arranca el flujo OAuth con Google
 export async function iniciarConGoogle(): Promise<void> {
-	const gateway = await crearGateway();
-	const url = await gateway.obtenerUrlGoogle().catch(() => null);
+	const deps = await crearContenedor();
+	const url = await deps.auth.obtenerUrlGoogle().catch(() => null);
 
 	if (!url) redirect("/login");
 
