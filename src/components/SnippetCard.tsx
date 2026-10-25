@@ -1,7 +1,7 @@
 "use client";
 
 // Iconos
-import { MessageSquareText, Trash2 } from "lucide-react";
+import { MessageSquareText, Share2, Trash2 } from "lucide-react";
 // React
 import { useState } from "react";
 // Componentes
@@ -15,14 +15,16 @@ import type { Snippet } from "@/core/domain/snippet";
 // Líneas de código que se muestran antes de ofrecer "ver más"
 const LINEAS_VISIBLES = 6;
 
-// Tarjeta de un snippet guardado: meta, código y explicación
+// Tarjeta de un snippet: metadatos, código, explicación y compartir
 export function SnippetCard({
 	snippet,
 	onDelete,
+	onShare,
 	eliminando,
 }: {
 	snippet: Snippet;
 	onDelete: (id: string) => void;
+	onShare: (snippet: Snippet) => void;
 	eliminando: boolean;
 }) {
 	// Estado
@@ -43,12 +45,24 @@ export function SnippetCard({
 				{snippet.language && <Badge>{snippet.language}</Badge>}
 				<FechaRelativa iso={snippet.createdAt} />
 
-				<span className="ml-auto flex items-center gap-2">
+				<span className="ml-auto flex items-center gap-1.5">
+					<button
+						type="button"
+						onClick={() => onShare(snippet)}
+						aria-label="Compartir el snippet"
+						title="Compartir el snippet"
+						className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-accent hover:text-accent-text"
+					>
+						<Share2 size={14} aria-hidden />
+						Compartir
+					</button>
+
 					<CopyButton
 						text={snippet.code}
 						label="código"
 						ariaLabel="Copiar el código"
 					/>
+
 					<button
 						type="button"
 						onClick={() => onDelete(snippet.id)}

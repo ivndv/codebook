@@ -1,3 +1,5 @@
+// Node
+import { randomUUID } from "node:crypto";
 // Supabase
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { SnippetRepository } from "@/core/domain/ports/snippet-repository";
@@ -78,5 +80,55 @@ export class SupabaseSnippetRepository implements SnippetRepository {
 		if (!data || data.length === 0) {
 			throw new Error("El snippet no existe o no te pertenece.");
 		}
+	}
+
+	async crearEnlacePublico(id: string): Promise<string> {
+		// 1. Reutiliza el token si ya existe
+		const { data, error } = await this.supabase
+			.from("snippets")
+			.select("share_token")
+			.eq("id", id)
+			.single();
+
+		if (error || !data) {
+			throw new Error(error?.message ?? "No se encontró el snippet.");
+		}
+
+		if (data.share_token) return data.share_token;
+
+		// 2. Genera uno nuevo y lo guarda
+		const token = randomUUID();
+		const { data: actualizado, error: errorUpdate } = await this.supabase
+			.from("snippets")
+			.update({ share_token: token })
+			.eq("id", id)
+			.select("share_token")
+			.single();
+
+		if (errorUpdate || !actualizado?.share_token) {
+			throw new Error(errorUpdate?.message ?? "No se pudo crear el enlace.");
+		}
+
+		return actualizado.share_token;
+	}
+
+	async obtenerPublico(token: string): Promise<Snippet | null> {
+		const { data, error } = await this.supabase.rpc("obtener_snippet_publico", {
+			p_token: token,
+		});
+
+		if (error) throw new Error(error.message);
+
+		const fila = data?.[0];
+
+		if (!fila) return null;
+
+		return {
+			id: fila.id,
+			code: fila.code,
+			explanation: fila.explanation,
+			language: fila.language,
+			createdAt: fila.created_at,
+		};
 	}
 }

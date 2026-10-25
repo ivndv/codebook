@@ -16,6 +16,7 @@ export type Database = {
 					explanation: string;
 					id: string;
 					language: string | null;
+					share_token: string | null;
 					user_id: string;
 				};
 				ComputedFields: never;
@@ -25,6 +26,7 @@ export type Database = {
 					explanation: string;
 					id?: string;
 					language?: string | null;
+					share_token?: string | null;
 					user_id?: string;
 				};
 				Update: {
@@ -33,6 +35,7 @@ export type Database = {
 					explanation?: string;
 					id?: string;
 					language?: string | null;
+					share_token?: string | null;
 					user_id?: string;
 				};
 				Relationships: [];
@@ -42,7 +45,18 @@ export type Database = {
 			[_ in never]: never;
 		};
 		Functions: {
-			[_ in never]: never;
+			obtener_snippet_publico: {
+				Args: { p_token: string };
+				Returns: {
+					code: string;
+					created_at: string;
+					explanation: string;
+					id: string;
+					language: string;
+				}[];
+			};
+			show_limit: { Args: Record<PropertyKey, never>; Returns: number };
+			show_trgm: { Args: { "": string }; Returns: string[] };
 		};
 		Enums: {
 			[_ in never]: never;

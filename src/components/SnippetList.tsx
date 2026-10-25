@@ -9,10 +9,12 @@ import type { Snippet } from "@/core/domain/snippet";
 export function SnippetList({
 	snippets,
 	onDelete,
+	onShare,
 	eliminandoId,
 }: {
 	snippets: Snippet[];
 	onDelete: (id: string) => void;
+	onShare: (snippet: Snippet) => void;
 	eliminandoId: string | null;
 }) {
 	if (snippets.length === 0) {
@@ -36,6 +38,7 @@ export function SnippetList({
 					key={snippet.id}
 					snippet={snippet}
 					onDelete={onDelete}
+					onShare={onShare}
 					eliminando={snippet.id === eliminandoId}
 				/>
 			))}

@@ -2,6 +2,7 @@
 
 // Next
 import { revalidatePath } from "next/cache";
+import { obtenerOrigen } from "@/adapters/inbound/next/origen";
 // Infraestructura
 import { limitarAnalisis } from "@/adapters/inbound/next/rate-limit";
 import {
@@ -13,6 +14,7 @@ import { crearContenedor } from "@/composition/container";
 // Aplicación
 import { analizar as analizarCaso } from "@/core/application/analizar";
 import { borrarSnippet as borrarSnippetCaso } from "@/core/application/borrar-snippet";
+import { compartirSnippet as compartirSnippetCaso } from "@/core/application/compartir-snippet";
 import type {
 	ResultadoAnalisisAccion,
 	ResultadoGuardadoAccion,
@@ -97,4 +99,25 @@ export async function borrarSnippet(
 
 	revalidatePath("/generador");
 	return { error: null };
+}
+
+// Crea (o reutiliza) el enlace público de un snippet
+export async function compartirSnippet(
+	id: unknown,
+): Promise<{ ok: true; url: string } | { ok: false; error: string }> {
+	const entrada = idSnippetSchema.safeParse(id);
+
+	if (!entrada.success) {
+		return { ok: false, error: "El snippet no es válido." };
+	}
+
+	const deps = await crearContenedor();
+	const resultado = await compartirSnippetCaso(entrada.data, deps.snippets);
+
+	if (!resultado.ok) {
+		return { ok: false, error: resultado.error.mensaje };
+	}
+
+	const origen = await obtenerOrigen();
+	return { ok: true, url: `${origen}/s/${resultado.valor}` };
 }

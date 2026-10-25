@@ -6,4 +6,6 @@ export interface SnippetRepository {
 	listar(pagina: number): Promise<{ snippets: Snippet[]; total: number }>;
 	crear(input: NuevoSnippet): Promise<Snippet>;
 	borrar(id: string): Promise<void>;
+	crearEnlacePublico(id: string): Promise<string>;
+	obtenerPublico(token: string): Promise<Snippet | null>;
 }

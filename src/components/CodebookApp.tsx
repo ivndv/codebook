@@ -5,6 +5,7 @@ import { useState } from "react";
 // Acciones
 import { borrarSnippet } from "@/app/actions";
 // Componentes
+import { DialogoCompartir } from "@/components/DialogoCompartir";
 import { LockedSnippets } from "@/components/LockedSnippets";
 import { Paginacion } from "@/components/Paginacion";
 import { SnippetForm } from "@/components/SnippetForm";
@@ -33,6 +34,7 @@ export function CodebookApp({
 	const logueado = usuario !== null;
 	const [eliminandoId, setEliminandoId] = useState<string | null>(null);
 	const [errorBorrado, setErrorBorrado] = useState<string | null>(null);
+	const [compartiendo, setCompartiendo] = useState<Snippet | null>(null);
 
 	// Handlers
 	async function eliminar(id: string) {
@@ -82,6 +84,7 @@ export function CodebookApp({
 						<SnippetList
 							snippets={snippets}
 							onDelete={eliminar}
+							onShare={setCompartiendo}
 							eliminandoId={eliminandoId}
 						/>
 						<Paginacion pagina={pagina} totalPaginas={totalPaginas} />
@@ -90,6 +93,11 @@ export function CodebookApp({
 					<LockedSnippets />
 				)}
 			</section>
+
+			<DialogoCompartir
+				snippet={compartiendo}
+				onClose={() => setCompartiendo(null)}
+			/>
 		</div>
 	);
 }
