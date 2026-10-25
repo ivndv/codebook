@@ -14,6 +14,8 @@ El objetivo es tener una **memoria de código propia**: cada snippet queda ligad
 - **Aislamiento con RLS**: cada usuario solo puede ver y borrar sus propios snippets.
 - **Rate limiting**: límites por usuario/IP y globales para proteger la cuota de IA, con Redis y fallback local.
 - **Paginación numerada**: navega por tu colección con flechas, números y salto directo.
+- **Búsqueda**: por código o explicación, con filtros por lenguaje y fecha.
+- **Compartir**: descarga una imagen PNG o genera un enlace público.
 - **Copiar con un clic**: copia el código o la explicación desde cada tarjeta.
 - **Tema oscuro**: interfaz simple y oscura, pensada para leer código.
 
@@ -21,7 +23,7 @@ El objetivo es tener una **memoria de código propia**: cada snippet queda ligad
 
 1. **Formulario**: pega el fragmento y pulsa «Analizar»; con sesión, después «Guardar snippet».
 2. **Resultado**: la explicación del análisis actual, con el lenguaje detectado y el código congelado.
-3. **Tus snippets**: tu colección paginada de 5 en 5, con copiar y borrar.
+3. **Tus snippets**: tu colección paginada de 5 en 5, con búsqueda, filtros y compartir.
 4. **Acceso**: registro e inicio de sesión con correo o con Google.
 5. **Modo invitado**: la lista queda bloqueada hasta que inicies sesión.
 

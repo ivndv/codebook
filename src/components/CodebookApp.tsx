@@ -5,35 +5,38 @@ import { useState } from "react";
 // Acciones
 import { borrarSnippet } from "@/app/actions";
 // Componentes
+import { BuscadorSnippets } from "@/components/BuscadorSnippets";
 import { DialogoCompartir } from "@/components/DialogoCompartir";
 import { LockedSnippets } from "@/components/LockedSnippets";
 import { Paginacion } from "@/components/Paginacion";
 import { SnippetForm } from "@/components/SnippetForm";
 import { SnippetList } from "@/components/SnippetList";
 // Tipos
-import type { Snippet } from "@/core/domain/snippet";
+import type { FiltrosSnippets, Snippet } from "@/core/domain/snippet";
 import type { Usuario } from "@/core/domain/usuario";
 
-// Panel de la app: formulario + lista paginada.
-// Los snippets vienen de Postgres (Server Component); al guardar o borrar,
-// revalidatePath refresca la lista
+// Panel de la app: formulario + lista paginada y filtrable
 export function CodebookApp({
 	usuario,
 	snippets,
 	total,
 	pagina,
 	totalPaginas,
+	filtros,
+	lenguajes,
 }: {
 	usuario: Usuario | null;
 	snippets: Snippet[];
 	total: number;
 	pagina: number;
 	totalPaginas: number;
+	filtros: FiltrosSnippets;
+	lenguajes: string[];
 }) {
 	// Estado
 	const logueado = usuario !== null;
 	const [eliminandoId, setEliminandoId] = useState<string | null>(null);
-	const [errorBorrado, setErrorBorrado] = useState<string | null>(null);
+	const [errorAccion, setErrorAccion] = useState<string | null>(null);
 	const [compartiendo, setCompartiendo] = useState<Snippet | null>(null);
 
 	// Handlers
@@ -41,15 +44,15 @@ export function CodebookApp({
 		if (!window.confirm("¿Eliminar este snippet? No se puede deshacer."))
 			return;
 
-		setErrorBorrado(null);
+		setErrorAccion(null);
 		setEliminandoId(id);
 
 		try {
 			const { error } = await borrarSnippet(id);
-			if (error) setErrorBorrado(error);
+			if (error) setErrorAccion(error);
 		} catch (error) {
 			console.error("[eliminar]", error);
-			setErrorBorrado("No se pudo borrar el snippet.");
+			setErrorAccion("No se pudo borrar el snippet.");
 		} finally {
 			setEliminandoId(null);
 		}
@@ -72,12 +75,14 @@ export function CodebookApp({
 
 				{logueado ? (
 					<>
-						{errorBorrado && (
+						<BuscadorSnippets filtros={filtros} lenguajes={lenguajes} />
+
+						{errorAccion && (
 							<p
 								role="alert"
 								className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
 							>
-								{errorBorrado}
+								{errorAccion}
 							</p>
 						)}
 
@@ -86,8 +91,13 @@ export function CodebookApp({
 							onDelete={eliminar}
 							onShare={setCompartiendo}
 							eliminandoId={eliminandoId}
+							filtros={filtros}
 						/>
-						<Paginacion pagina={pagina} totalPaginas={totalPaginas} />
+						<Paginacion
+							pagina={pagina}
+							totalPaginas={totalPaginas}
+							filtros={filtros}
+						/>
 					</>
 				) : (
 					<LockedSnippets />

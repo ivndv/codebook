@@ -4,6 +4,8 @@ import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { SnippetRepository } from "@/core/domain/ports/snippet-repository";
 import {
+	type FechaFiltro,
+	type FiltrosSnippets,
 	type NuevoSnippet,
 	SNIPPETS_POR_PAGINA,
 	type Snippet,
@@ -24,23 +26,71 @@ function mapear(fila: FilaSnippet): Snippet {
 	};
 }
 
+// Quita caracteres que rompen el filtro de PostgREST o actúan como comodines
+function sanitizarBusqueda(valor: string): string {
+	return valor
+		.replace(/[%_,()*\\"]/g, " ")
+		.replace(/\s+/g, " ")
+		.trim();
+}
+
+// Fecha de corte para el filtro (24 h, 7 días o 30 días)
+function desdeFecha(fecha: FechaFiltro): string | null {
+	if (fecha === "todo") return null;
+
+	const dias = fecha === "hoy" ? 1 : fecha === "7d" ? 7 : 30;
+	return new Date(Date.now() - dias * 24 * 60 * 60 * 1000).toISOString();
+}
+
 // Adaptador Supabase del puerto SnippetRepository
 export class SupabaseSnippetRepository implements SnippetRepository {
 	constructor(private readonly supabase: SupabaseClient<Database>) {}
 
 	async listar(
 		pagina: number,
+		filtros: FiltrosSnippets,
 	): Promise<{ snippets: Snippet[]; total: number }> {
 		// 1. Calcula el rango de la página pedida
 		const desde = (pagina - 1) * SNIPPETS_POR_PAGINA;
 		const hasta = desde + SNIPPETS_POR_PAGINA - 1;
 
-		// 2. Consulta la página con el total exacto (RLS filtra por auth.uid())
-		const { data, count, error } = await this.supabase
+		// 2. Arma la consulta con filtros (RLS filtra por auth.uid())
+		let consulta = this.supabase
 			.from("snippets")
-			.select("*", { count: "exact" })
-			.order("created_at", { ascending: false })
-			.range(desde, hasta);
+			.select("*", { count: "exact" });
+
+		const busqueda = sanitizarBusqueda(filtros.busqueda);
+
+		if (busqueda) {
+			const patron = `%${busqueda}%`;
+
+			if (filtros.alcance === "codigo") {
+				consulta = consulta.ilike("code", patron);
+			} else if (filtros.alcance === "explicacion") {
+				consulta = consulta.ilike("explanation", patron);
+			} else {
+				consulta = consulta.or(
+					`explanation.ilike.${patron},code.ilike.${patron}`,
+				);
+			}
+		}
+
+		if (filtros.lenguaje) {
+			consulta = consulta.eq("language", filtros.lenguaje);
+		}
+
+		const corte = desdeFecha(filtros.fecha);
+
+		if (corte) {
+			consulta = consulta.gte("created_at", corte);
+		}
+
+		// 3. Orden pedido
+		consulta = consulta.order("created_at", {
+			ascending: filtros.orden === "antiguos",
+		});
+
+		const { data, count, error } = await consulta.range(desde, hasta);
 
 		if (error) throw new Error(error.message);
 
@@ -66,6 +116,25 @@ export class SupabaseSnippetRepository implements SnippetRepository {
 		}
 
 		return mapear(data);
+	}
+
+	async lenguajes(): Promise<string[]> {
+		const { data, error } = await this.supabase
+			.from("snippets")
+			.select("language")
+			.not("language", "is", null)
+			.order("language", { ascending: true })
+			.limit(1_000);
+
+		if (error) throw new Error(error.message);
+
+		const unicos = new Set<string>();
+
+		for (const fila of data ?? []) {
+			if (fila.language) unicos.add(fila.language);
+		}
+
+		return [...unicos];
 	}
 
 	async borrar(id: string): Promise<void> {

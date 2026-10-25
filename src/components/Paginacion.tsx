@@ -1,8 +1,10 @@
-// Next
-
 // Iconos
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
+// Dominio
+import type { FiltrosSnippets } from "@/core/domain/snippet";
+// Locales
+import { urlGenerador } from "@/lib/filtros-url";
 
 const claseNumero =
 	"flex h-8 w-8 items-center justify-center rounded-lg border border-border text-sm text-muted transition-colors hover:border-accent hover:text-text";
@@ -23,9 +25,11 @@ function ventana(pagina: number, total: number): number[] {
 export function Paginacion({
 	pagina,
 	totalPaginas,
+	filtros,
 }: {
 	pagina: number;
 	totalPaginas: number;
+	filtros: FiltrosSnippets;
 }) {
 	if (totalPaginas <= 1) return null;
 
@@ -41,7 +45,7 @@ export function Paginacion({
 				{/* Flecha anterior */}
 				{hayAnterior ? (
 					<Link
-						href={`/generador?pagina=${pagina - 1}`}
+						href={urlGenerador(filtros, pagina - 1)}
 						aria-label="Página anterior"
 						className={claseNumero}
 					>
@@ -66,7 +70,7 @@ export function Paginacion({
 					) : (
 						<Link
 							key={numero}
-							href={`/generador?pagina=${numero}`}
+							href={urlGenerador(filtros, numero)}
 							aria-label={`Ir a la página ${numero}`}
 							className={claseNumero}
 						>
@@ -78,7 +82,7 @@ export function Paginacion({
 				{/* Flecha siguiente */}
 				{haySiguiente ? (
 					<Link
-						href={`/generador?pagina=${pagina + 1}`}
+						href={urlGenerador(filtros, pagina + 1)}
 						aria-label="Página siguiente"
 						className={claseNumero}
 					>
@@ -101,6 +105,22 @@ export function Paginacion({
 				method="get"
 				className="flex items-center gap-2"
 			>
+				{filtros.busqueda && (
+					<input type="hidden" name="q" value={filtros.busqueda} />
+				)}
+				{filtros.lenguaje && (
+					<input type="hidden" name="lenguaje" value={filtros.lenguaje} />
+				)}
+				{filtros.orden !== "recientes" && (
+					<input type="hidden" name="orden" value={filtros.orden} />
+				)}
+				{filtros.alcance !== "todo" && (
+					<input type="hidden" name="en" value={filtros.alcance} />
+				)}
+				{filtros.fecha !== "todo" && (
+					<input type="hidden" name="fecha" value={filtros.fecha} />
+				)}
+
 				<label htmlFor="pagina" className="text-xs text-muted">
 					Ir a
 				</label>

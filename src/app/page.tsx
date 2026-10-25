@@ -1,6 +1,6 @@
 // Next
 
-import { ArrowRight, LogIn } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
@@ -28,9 +28,6 @@ const PASOS = [
 const ctaPrimario =
 	"inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-hover";
 
-const ctaSecundario =
-	"inline-flex items-center justify-center gap-2 rounded-lg border border-border px-5 py-3 text-sm text-muted transition-colors hover:border-accent hover:text-text";
-
 export default async function LandingPage() {
 	// Solo necesitamos la sesión para el estado del header
 	await connection();
@@ -41,7 +38,7 @@ export default async function LandingPage() {
 		<>
 			<Header usuario={usuario} />
 
-			<main className="mx-auto flex w-full max-w-5xl flex-1 items-center px-4 py-16 sm:px-6 sm:py-24">
+			<main className="mx-auto flex w-full max-w-5xl flex-1 items-center justify-center px-4 py-16 sm:px-6 sm:py-24">
 				<section className="grid w-full max-w-[54rem] gap-5">
 					<p className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-accent-text">
 						Memoria de código
@@ -76,13 +73,6 @@ export default async function LandingPage() {
 							Abrir el generador
 							<ArrowRight size={16} aria-hidden />
 						</Link>
-
-						{!usuario && (
-							<Link href="/login" className={ctaSecundario}>
-								<LogIn size={16} aria-hidden />
-								Iniciar sesión
-							</Link>
-						)}
 					</div>
 				</section>
 			</main>

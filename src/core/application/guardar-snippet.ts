@@ -4,11 +4,12 @@ import type { SessionReader } from "@/core/domain/ports/session-reader";
 import type { SnippetRepository } from "@/core/domain/ports/snippet-repository";
 import { err, ok, type Result } from "@/core/domain/result";
 import type { Snippet } from "@/core/domain/snippet";
+import {
+	normalizarLenguaje,
+	validarExplicacion,
+} from "@/core/domain/snippet-campos";
 import type { Usuario } from "@/core/domain/usuario";
 import { validarCodigo } from "@/core/domain/validar-codigo";
-
-// Límite defensivo para una explicación de una línea
-const MAX_EXPLANATION_LENGTH = 2_000;
 
 // Datos que la UI congela después de analizar
 export interface DatosGuardado {
@@ -32,23 +33,11 @@ export async function guardarSnippet(
 
 	if (!codigo.ok) return err(codigo.error);
 
-	const explanation = datos.explanation.trim();
+	const explanation = validarExplicacion(datos.explanation);
 
-	if (!explanation) {
-		return err({
-			tipo: "validacion",
-			mensaje: "La explicación está vacía.",
-		});
-	}
+	if (!explanation.ok) return err(explanation.error);
 
-	if (explanation.length > MAX_EXPLANATION_LENGTH) {
-		return err({
-			tipo: "validacion",
-			mensaje: "La explicación es demasiado larga.",
-		});
-	}
-
-	const language = datos.language?.trim() || null;
+	const language = normalizarLenguaje(datos.language);
 
 	// 1. Exige una sesión válida antes de escribir
 	let usuario: Usuario | null;
@@ -74,7 +63,7 @@ export async function guardarSnippet(
 	try {
 		const snippet = await deps.snippets.crear({
 			code: codigo.valor,
-			explanation,
+			explanation: explanation.valor,
 			language,
 		});
 
