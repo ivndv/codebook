@@ -7,6 +7,8 @@ const MAXIMO_MINUTO = 10;
 const MAXIMO_DIA = 100;
 const MAXIMO_GLOBAL_DIA = 800;
 const TIMEOUT_MS = 1_500;
+const ENTORNO = process.env.APP_ENV ?? "production";
+const PREFIJO = `codebook:${ENTORNO}:analisis`;
 
 // Resultado que consume el adaptador de entrada
 export interface ResultadoLimite {
@@ -43,19 +45,19 @@ function obtenerLimitadores(): Limitadores | null {
 		minuto: new Ratelimit({
 			redis,
 			limiter: Ratelimit.slidingWindow(MAXIMO_MINUTO, "1 m"),
-			prefix: "codebook:analisis:minuto",
+			prefix: `${PREFIJO}:minuto`,
 			timeout: TIMEOUT_MS,
 		}),
 		dia: new Ratelimit({
 			redis,
 			limiter: Ratelimit.slidingWindow(MAXIMO_DIA, "1 d"),
-			prefix: "codebook:analisis:dia",
+			prefix: `${PREFIJO}:dia`,
 			timeout: TIMEOUT_MS,
 		}),
 		global: new Ratelimit({
 			redis,
 			limiter: Ratelimit.slidingWindow(MAXIMO_GLOBAL_DIA, "1 d"),
-			prefix: "codebook:analisis:global",
+			prefix: `${PREFIJO}:global`,
 			timeout: TIMEOUT_MS,
 		}),
 	};
