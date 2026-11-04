@@ -22,7 +22,7 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 * **Modos de uso:**
   * **Invitado** → obtiene la explicación, **no se guarda nada** y no toca la base de datos.
   * **Autenticado** → además persiste en **Supabase** y aparece en *"Tus snippets"*.
-* **Dominio en Producción:** [https://codebook-ivndv.vercel.app](https://codebook-ivndv.vercel.app)
+* **Dominio en Producción:** [https://codebook-three.vercel.app](https://codebook-three.vercel.app)
 * **Repositorios:** `codebook` (frontend) · `codebook-api` (backend IA)
 
 ---

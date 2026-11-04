@@ -19,7 +19,7 @@ const PROYECTO = [
 		href: "https://github.com/ivndv/codebook#readme",
 		etiqueta: "Documentación",
 	},
-	{ href: "https://codebook-ivndv.vercel.app", etiqueta: "Producción" },
+	{ href: "https://codebook-three.vercel.app", etiqueta: "Producción" },
 ];
 
 // Icono de GitHub (lucide v1 ya no incluye iconos de marca)
