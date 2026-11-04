@@ -74,7 +74,7 @@ export default async function GeneradorPage(props: PageProps<"/generador">) {
 		<>
 			<Header usuario={usuario} />
 
-			<main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:px-6 sm:py-14">
+			<main className="mx-auto flex min-h-svh w-full max-w-5xl flex-1 flex-col px-4 pt-[calc(var(--header-h)+2rem)] pb-10 sm:px-6 sm:pb-14">
 				<div className="mb-10 max-w-2xl space-y-2">
 					<span className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-accent-text">
 						Generador
