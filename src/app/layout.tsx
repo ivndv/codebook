@@ -36,6 +36,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 			<body className="flex min-h-screen flex-col bg-bg font-sans text-text antialiased">
 				{children}
 				<Footer />
+				{/* Cloudflare Web Analytics */}
+				<script
+					defer
+					src="https://static.cloudflareinsights.com/beacon.min.js"
+					data-cf-beacon='{"token":"7c11b558e902440698d22570b3ef0910"}'
+				/>
 			</body>
 		</html>
 	);
