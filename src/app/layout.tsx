@@ -1,5 +1,5 @@
 // Next
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 // Componentes
 import { Footer } from "@/components/Footer";
@@ -23,6 +23,11 @@ export const metadata: Metadata = {
 	title: "codebook",
 	description:
 		"Guarda fragmentos de código con su explicación generada por IA.",
+};
+
+export const viewport: Viewport = {
+	// Necesario para que env(safe-area-inset-*) no valga 0 en iOS.
+	viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

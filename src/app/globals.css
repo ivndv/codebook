@@ -28,6 +28,11 @@
 		monospace;
 }
 
+/* Alto del header fijo, incluida la safe area de iOS */
+:root {
+	--header-h: calc(4rem + env(safe-area-inset-top, 0px));
+}
+
 /* Base del documento */
 html {
 	color-scheme: dark;
