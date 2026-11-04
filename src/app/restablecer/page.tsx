@@ -32,7 +32,7 @@ export default async function RestablecerPage() {
 		<>
 			<Header usuario={usuario} />
 
-			<main className="mx-auto flex w-full max-w-5xl flex-1 items-center px-4 py-14 sm:px-6 sm:py-20">
+			<main className="mx-auto flex min-h-svh w-full max-w-5xl flex-1 items-center px-4 pt-[var(--header-h)] pb-14 sm:px-6 sm:pb-20">
 				<div className="mx-auto w-full max-w-sm">
 					<div className="space-y-3 text-center">
 						<span className="mx-auto grid size-12 place-items-center rounded-xl bg-accent text-white">
