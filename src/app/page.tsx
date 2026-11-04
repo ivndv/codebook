@@ -39,7 +39,7 @@ export default async function LandingPage() {
 			<Header usuario={usuario} />
 
 			<main className="flex min-h-svh flex-col">
-				<section className="relative -mt-[var(--header-h)] flex min-h-svh items-center overflow-hidden pt-[var(--header-h)] pb-12">
+				<section className="relative flex min-h-svh items-center overflow-hidden pt-[var(--header-h)]">
 					<div
 						aria-hidden
 						className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--color-accent)_8%,transparent),transparent_65%)]"

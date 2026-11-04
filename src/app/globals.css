@@ -37,6 +37,8 @@
 html {
 	color-scheme: dark;
 	scroll-behavior: smooth;
+	/* Reserva la scrollbar a ambos lados para que el contenido quede centrado */
+	scrollbar-gutter: stable both-edges;
 }
 
 body {
