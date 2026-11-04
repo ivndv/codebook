@@ -38,41 +38,48 @@ export default async function LandingPage() {
 		<>
 			<Header usuario={usuario} />
 
-			<main className="mx-auto flex w-full max-w-5xl flex-1 items-center justify-center px-4 py-16 sm:px-6 sm:py-24">
-				<section className="grid w-full max-w-[54rem] gap-5">
-					<p className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-accent-text">
-						Memoria de código
-					</p>
+			<main className="flex min-h-svh flex-col">
+				<section className="relative -mt-[var(--header-h)] flex min-h-svh items-center overflow-hidden pt-[var(--header-h)] pb-12">
+					<div
+						aria-hidden
+						className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--color-accent)_8%,transparent),transparent_65%)]"
+					/>
 
-					<h1 className="text-[clamp(2.4rem,7vw,4.8rem)] font-bold leading-[0.95] tracking-[-0.055em]">
-						Tu código, <span className="text-accent-text">explicado</span>.
-					</h1>
+					<div className="relative mx-auto grid w-full max-w-5xl gap-5 px-4 text-center sm:px-6">
+						<p className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-accent-text">
+							Memoria de código
+						</p>
 
-					<p className="max-w-[42rem] text-[1.02rem] leading-[1.7] text-muted">
-						Pega un fragmento y la IA te devuelve un resumen de una línea.
-						Inicia sesión para guardarlo en tu colección y consultarlo cuando
-						quieras.
-					</p>
+						<h1 className="mx-auto max-w-[54rem] text-[clamp(2.4rem,7vw,4.8rem)] font-bold leading-[0.95] tracking-[-0.055em]">
+							Tu código, <span className="text-accent-text">explicado</span>.
+						</h1>
 
-					<ol className="mt-2 flex flex-wrap gap-2">
-						{PASOS.map((paso) => (
-							<li
-								key={paso.numero}
-								className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-[0.74rem] text-muted"
-							>
-								<span className="font-mono text-[0.62rem] text-accent-text">
-									{paso.numero}
-								</span>
-								{paso.texto}
-							</li>
-						))}
-					</ol>
+						<p className="mx-auto max-w-[42rem] text-[1.02rem] leading-[1.7] text-muted">
+							Pega un fragmento y la IA te devuelve un resumen de una línea.
+							Inicia sesión para guardarlo en tu colección y consultarlo cuando
+							quieras.
+						</p>
 
-					<div className="mt-4 flex flex-wrap items-center gap-3">
-						<Link href="/generador" className={ctaPrimario}>
-							Abrir el generador
-							<ArrowRight size={16} aria-hidden />
-						</Link>
+						<ol className="mt-2 flex flex-wrap justify-center gap-2">
+							{PASOS.map((paso) => (
+								<li
+									key={paso.numero}
+									className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-[0.74rem] text-muted"
+								>
+									<span className="font-mono text-[0.62rem] text-accent-text">
+										{paso.numero}
+									</span>
+									{paso.texto}
+								</li>
+							))}
+						</ol>
+
+						<div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+							<Link href="/generador" className={ctaPrimario}>
+								Abrir el generador
+								<ArrowRight size={16} aria-hidden />
+							</Link>
+						</div>
 					</div>
 				</section>
 			</main>
