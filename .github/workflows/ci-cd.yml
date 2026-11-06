@@ -46,22 +46,11 @@ jobs:
       - name: Setup Node y Bun
         uses: ./.github/actions/setup
 
-      - name: Instalar Vercel CLI
-        run: npm install -g vercel@latest
-
       - name: Descargar entorno de Vercel
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: ./node_modules/.bin/vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Compilar
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Subir build
-        uses: actions/upload-artifact@v4
-        with:
-          name: vercel-output
-          path: .vercel/output
-          include-hidden-files: true
-          retention-days: 1
+        run: ./node_modules/.bin/vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
   deploy:
     name: Deploy
@@ -76,20 +65,14 @@ jobs:
       - name: Setup Node y Bun
         uses: ./.github/actions/setup
 
-      - name: Instalar Vercel CLI
-        run: npm install -g vercel@latest
-
       - name: Descargar entorno de Vercel
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: ./node_modules/.bin/vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Bajar build
-        uses: actions/download-artifact@v4
-        with:
-          name: vercel-output
-          path: .vercel/output
+      - name: Compilar
+        run: ./node_modules/.bin/vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Desplegar
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: ./node_modules/.bin/vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
 
   gitleaks:
     uses: ivndv/.github/.github/workflows/gitleaks.yml@main
