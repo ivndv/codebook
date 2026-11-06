@@ -2,7 +2,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 // Dominio
-import type { FiltrosSnippets } from "@/core/domain/snippet";
+import type { FiltrosSnippets } from "@/core/domain/filtros-snippets";
 // Locales
 import { useLocale } from "@/i18n/LocaleProvider";
 import { ruta } from "@/i18n/rutas";

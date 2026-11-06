@@ -1,10 +1,11 @@
 // Tipos
-import type { SnippetRepository } from "@/core/domain/ports/snippet-repository";
+
+import type { FiltrosSnippets } from "@/core/domain/filtros-snippets";
 import {
-	type FiltrosSnippets,
 	type PaginaSnippets,
 	SNIPPETS_POR_PAGINA,
-} from "@/core/domain/snippet";
+} from "@/core/domain/paginacion";
+import type { SnippetRepository } from "@/core/domain/ports/snippet-repository";
 import {
 	normalizarAlcance,
 	normalizarFecha,

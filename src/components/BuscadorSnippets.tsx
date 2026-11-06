@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 // React
 import { useCallback, useEffect, useState, useTransition } from "react";
 // Tipos
-import type { FiltrosSnippets } from "@/core/domain/snippet";
+import type { FiltrosSnippets } from "@/core/domain/filtros-snippets";
 // Locales
 import { useLocale } from "@/i18n/LocaleProvider";
 import * as m from "@/paraglide/messages";

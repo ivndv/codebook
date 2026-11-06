@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/estilos";
 // Datos
 import { ANALISIS_INICIAL } from "@/core/application/dto";
-import { MAX_CODE_LENGTH } from "@/core/domain/snippet";
+import { MAX_CODE_LENGTH } from "@/core/domain/limites";
 // Locales
 import { useLocale } from "@/i18n/LocaleProvider";
 import { ruta } from "@/i18n/rutas";

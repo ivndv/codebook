@@ -4,7 +4,8 @@ import Link from "next/link";
 // Componentes
 import { SnippetCard } from "@/components/SnippetCard";
 // Tipos
-import type { FiltrosSnippets, Snippet } from "@/core/domain/snippet";
+import type { FiltrosSnippets } from "@/core/domain/filtros-snippets";
+import type { Snippet } from "@/core/domain/snippet";
 // Locales
 import { useLocale } from "@/i18n/LocaleProvider";
 import { ruta } from "@/i18n/rutas";

@@ -10,7 +10,7 @@ import { crearContenedor } from "@/composition/container";
 // Aplicación
 import { listarSnippets } from "@/core/application/listar-snippets";
 // Dominio
-import type { FiltrosSnippets } from "@/core/domain/snippet";
+import type { FiltrosSnippets } from "@/core/domain/filtros-snippets";
 import {
 	normalizarAlcance,
 	normalizarFecha,

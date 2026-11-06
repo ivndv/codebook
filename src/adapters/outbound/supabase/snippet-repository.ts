@@ -2,14 +2,13 @@
 import { randomUUID } from "node:crypto";
 // Supabase
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type {
+	FechaFiltro,
+	FiltrosSnippets,
+} from "@/core/domain/filtros-snippets";
+import { SNIPPETS_POR_PAGINA } from "@/core/domain/paginacion";
 import type { SnippetRepository } from "@/core/domain/ports/snippet-repository";
-import {
-	type FechaFiltro,
-	type FiltrosSnippets,
-	type NuevoSnippet,
-	SNIPPETS_POR_PAGINA,
-	type Snippet,
-} from "@/core/domain/snippet";
+import type { NuevoSnippet, Snippet } from "@/core/domain/snippet";
 // Tipos
 import type { Database, Tables } from "@/lib/database.types";
 

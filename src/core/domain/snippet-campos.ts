@@ -1,11 +1,11 @@
 // Tipos
 import type { ErrorDominio } from "@/core/domain/errors";
-import { err, ok, type Result } from "@/core/domain/result";
 import type {
 	AlcanceBusqueda,
 	FechaFiltro,
 	OrdenSnippets,
-} from "@/core/domain/snippet";
+} from "@/core/domain/filtros-snippets";
+import { err, ok, type Result } from "@/core/domain/result";
 
 // Límites de los campos editables
 export const MAX_EXPLANATION_LENGTH = 2_000;

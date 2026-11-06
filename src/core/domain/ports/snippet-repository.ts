@@ -1,9 +1,6 @@
 // Tipos
-import type {
-	FiltrosSnippets,
-	NuevoSnippet,
-	Snippet,
-} from "@/core/domain/snippet";
+import type { FiltrosSnippets } from "@/core/domain/filtros-snippets";
+import type { NuevoSnippet, Snippet } from "@/core/domain/snippet";
 
 // Puerto de persistencia: el dominio define qué necesita, no cómo se guarda
 export interface SnippetRepository {

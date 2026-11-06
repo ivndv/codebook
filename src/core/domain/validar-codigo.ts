@@ -1,7 +1,7 @@
 // Tipos
 import type { ErrorDominio } from "@/core/domain/errors";
+import { MAX_CODE_LENGTH } from "@/core/domain/limites";
 import { err, ok, type Result } from "@/core/domain/result";
-import { MAX_CODE_LENGTH } from "@/core/domain/snippet";
 
 // Valida y normaliza el código que llega de la UI
 export function validarCodigo(code: string): Result<string, ErrorDominio> {

@@ -12,7 +12,8 @@ import { Paginacion } from "@/components/Paginacion";
 import { SnippetForm } from "@/components/SnippetForm";
 import { SnippetList } from "@/components/SnippetList";
 // Tipos
-import type { FiltrosSnippets, Snippet } from "@/core/domain/snippet";
+import type { FiltrosSnippets } from "@/core/domain/filtros-snippets";
+import type { Snippet } from "@/core/domain/snippet";
 import type { Usuario } from "@/core/domain/usuario";
 // Locales
 import { useLocale } from "@/i18n/LocaleProvider";
