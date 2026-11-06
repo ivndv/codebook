@@ -3,7 +3,7 @@
 // React
 import { useState } from "react";
 // Acciones
-import { borrarSnippet } from "@/app/actions";
+import { borrarSnippet } from "@/app/actions/delete";
 // Componentes
 import { BuscadorSnippets } from "@/components/BuscadorSnippets";
 import { DialogoCompartir } from "@/components/DialogoCompartir";

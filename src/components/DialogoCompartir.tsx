@@ -5,7 +5,7 @@ import { Check, Download, Link2, LoaderCircle, Share2, X } from "lucide-react";
 // React
 import { useEffect, useRef, useState } from "react";
 // Acciones
-import { compartirSnippet } from "@/app/actions";
+import { compartirSnippet } from "@/app/actions/share";
 // Componentes
 import { TarjetaCompartir } from "@/components/TarjetaCompartir";
 import { botonPrimario, botonSecundario } from "@/components/ui/estilos";

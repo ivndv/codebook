@@ -16,7 +16,8 @@ import Link from "next/link";
 // React
 import { type FormEvent, useId, useReducer, useRef, useState } from "react";
 // Acciones
-import { analizar, guardarSnippet } from "@/app/actions";
+import { analizar } from "@/app/actions/analyze";
+import { guardarSnippet } from "@/app/actions/save";
 // Componentes
 import { SnippetResult } from "@/components/SnippetResult";
 import { reducer } from "@/components/snippet-form-state";
