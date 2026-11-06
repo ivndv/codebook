@@ -18,6 +18,9 @@
 	--color-accent-soft: #211a3b;
 	--color-accent-text: #b3a3ff;
 
+	/* Acción destructiva */
+	--color-danger: #f87171;
+
 	/* Profundidad de tarjeta */
 	--shadow-card: 0 20px 45px -25px rgb(0 0 0 / 70%);
 
@@ -26,6 +29,33 @@
 	--font-mono:
 		var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo, Consolas,
 		monospace;
+}
+
+/* Tokens del tema claro sobre el morado — se aplican con data-theme="light" */
+html[data-theme="light"] {
+	color-scheme: light;
+
+	/* Superficies */
+	--color-bg: #f7f7fa;
+	--color-surface: #ffffff;
+	--color-surface-2: #f1f0f7;
+	--color-border: #e2e0ea;
+
+	/* Texto */
+	--color-text: #14121a;
+	--color-muted: #6b6677;
+
+	/* Acento (morado oscurecido para pasar AA sobre blanco) */
+	--color-accent: #5b3bd6;
+	--color-accent-hover: #4a2fbd;
+	--color-accent-soft: #ece7ff;
+	--color-accent-text: #4a2fbd;
+
+	/* Acción destructiva, más oscura para pasar AA sobre blanco */
+	--color-danger: #b91c1c;
+
+	/* Profundidad de tarjeta */
+	--shadow-card: 0 20px 45px -25px rgb(20 18 26 / 25%);
 }
 
 /* Alto del header fijo, incluida la safe area de iOS */

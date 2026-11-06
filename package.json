@@ -3,9 +3,11 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "next dev",
-		"build": "next build",
+		"dev": "bun run i18n && next dev",
+		"build": "bun run i18n && next build",
 		"start": "next start",
+		"i18n": "paraglide-js compile --project ./project.inlang",
+		"typecheck": "bun run i18n && tsc --noEmit",
 		"lint": "biome check --write .",
 		"format": "biome format --write .",
 		"check": "biome check .",
@@ -19,12 +21,14 @@
 		"html-to-image": "^1.11.13",
 		"lucide-react": "^1.61.0",
 		"next": "16.4.2",
+		"next-themes": "^0.4.6",
 		"react": "^19.3.1",
 		"react-dom": "^19.3.1",
 		"zod": "^4.6.7"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.15",
+		"@inlang/paraglide-js": "^2",
 		"@tailwindcss/turbopack": "^4",
 		"@types/node": "^26.6.5",
 		"@types/react": "^19",
