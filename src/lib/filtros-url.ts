@@ -1,5 +1,5 @@
 // Tipos
-import type { FiltrosSnippets } from "@/core/domain/filtros-snippets";
+import type { FiltrosSnippets } from "@/core/snippets/domain/filtros-snippets";
 
 // Construye la URL del generador conservando los filtros activos
 export function urlGenerador(

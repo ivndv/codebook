@@ -4,12 +4,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 // Infraestructura
-import { nuevaPasswordSchema } from "@/adapters/inbound/next/schemas";
+import { nuevaPasswordSchema } from "@/adapters/inbound/next/schemas/schemas";
 // Tipos
 import type { AuthState } from "@/app/auth-types";
 import { crearContenedor } from "@/composition/container";
 // Aplicación
-import { restablecerPassword as restablecerPasswordCaso } from "@/core/application/restablecer-password";
+import { restablecerPassword as restablecerPasswordCaso } from "@/core/auth/application/restablecer-password";
 // Locales
 import { ruta } from "@/i18n/rutas";
 // Paraglide

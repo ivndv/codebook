@@ -2,22 +2,22 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
+import { Header } from "@/components/layout/Header";
 // Componentes
-import { CodebookApp } from "@/components/CodebookApp";
-import { Header } from "@/components/Header";
+import { CodebookApp } from "@/components/snippets/CodebookApp";
 // Infraestructura
 import { crearContenedor } from "@/composition/container";
 // Aplicación
-import { listarSnippets } from "@/core/application/listar-snippets";
+import { listarSnippets } from "@/core/snippets/application/listar-snippets";
 // Dominio
-import type { FiltrosSnippets } from "@/core/domain/filtros-snippets";
+import type { FiltrosSnippets } from "@/core/snippets/domain/filtros-snippets";
 import {
 	normalizarAlcance,
 	normalizarFecha,
 	normalizarLenguaje,
 	normalizarOrden,
 	validarBusqueda,
-} from "@/core/domain/snippet-campos";
+} from "@/core/snippets/domain/snippet-campos";
 // Locales
 import { urlGenerador } from "@/lib/filtros-url";
 import * as m from "@/paraglide/messages";

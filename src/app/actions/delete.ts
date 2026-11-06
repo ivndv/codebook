@@ -3,10 +3,10 @@
 // Next
 import { revalidatePath } from "next/cache";
 // Infraestructura
-import { idSnippetSchema } from "@/adapters/inbound/next/schemas";
+import { idSnippetSchema } from "@/adapters/inbound/next/schemas/schemas";
 import { crearContenedor } from "@/composition/container";
 // Aplicación
-import { borrarSnippet as borrarSnippetCaso } from "@/core/application/borrar-snippet";
+import { borrarSnippet as borrarSnippetCaso } from "@/core/snippets/application/borrar-snippet";
 // Locales
 import * as m from "@/paraglide/messages";
 // Acciones

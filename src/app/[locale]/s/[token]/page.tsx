@@ -8,12 +8,12 @@ import { cache } from "react";
 // Zod
 import { z } from "zod";
 // Infraestructura
-import { createPublicClient } from "@/adapters/outbound/supabase/public";
-import { SupabaseSnippetRepository } from "@/adapters/outbound/supabase/snippet-repository";
+import { createPublicClient } from "@/adapters/outbound/supabase/client/public";
+import { SupabaseSnippetRepository } from "@/adapters/outbound/supabase/repositories/snippet-repository";
 // Componentes
 import { Badge } from "@/components/ui/Badge";
 // Aplicación
-import { obtenerSnippetPublico } from "@/core/application/obtener-snippet-publico";
+import { obtenerSnippetPublico } from "@/core/snippets/application/obtener-snippet-publico";
 // Locales
 import { ruta } from "@/i18n/rutas";
 import * as m from "@/paraglide/messages";

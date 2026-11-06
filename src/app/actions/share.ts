@@ -2,10 +2,10 @@
 
 // Infraestructura
 import { obtenerOrigen } from "@/adapters/inbound/next/origen";
-import { idSnippetSchema } from "@/adapters/inbound/next/schemas";
+import { idSnippetSchema } from "@/adapters/inbound/next/schemas/schemas";
 import { crearContenedor } from "@/composition/container";
 // Aplicación
-import { compartirSnippet as compartirSnippetCaso } from "@/core/application/compartir-snippet";
+import { compartirSnippet as compartirSnippetCaso } from "@/core/snippets/application/compartir-snippet";
 // Locales
 import * as m from "@/paraglide/messages";
 // Acciones

@@ -1,12 +1,12 @@
 "use server";
 
 // Infraestructura
-import { limitarAnalisis } from "@/adapters/inbound/next/rate-limit";
-import { codigoEntradaSchema } from "@/adapters/inbound/next/schemas";
+import { limitarAnalisis } from "@/adapters/inbound/next/rate-limit/rate-limit";
+import { codigoEntradaSchema } from "@/adapters/inbound/next/schemas/schemas";
 import { crearContenedor } from "@/composition/container";
 // Aplicación
-import { analizar as analizarCaso } from "@/core/application/analizar";
-import type { ResultadoAnalisisAccion } from "@/core/application/dto";
+import { analizar as analizarCaso } from "@/core/snippets/application/analizar";
+import type { ResultadoAnalisisAccion } from "@/core/snippets/application/dto";
 // Locales
 import * as m from "@/paraglide/messages";
 // Acciones

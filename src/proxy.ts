@@ -1,7 +1,7 @@
 // Next
 import { type NextRequest, NextResponse } from "next/server";
 // Sesión
-import { actualizarSesion } from "@/adapters/outbound/supabase/proxy";
+import { actualizarSesion } from "@/adapters/outbound/supabase/client/proxy";
 // Paraglide
 import { baseLocale, isLocale, type Locale } from "@/paraglide/runtime";
 

@@ -3,11 +3,11 @@
 // Next
 import { revalidatePath } from "next/cache";
 // Infraestructura
-import { datosGuardadoSchema } from "@/adapters/inbound/next/schemas";
+import { datosGuardadoSchema } from "@/adapters/inbound/next/schemas/schemas";
 import { crearContenedor } from "@/composition/container";
 // Aplicación
-import type { ResultadoGuardadoAccion } from "@/core/application/dto";
-import { guardarSnippet as guardarSnippetCaso } from "@/core/application/guardar-snippet";
+import type { ResultadoGuardadoAccion } from "@/core/snippets/application/dto";
+import { guardarSnippet as guardarSnippetCaso } from "@/core/snippets/application/guardar-snippet";
 // Locales
 import * as m from "@/paraglide/messages";
 // Acciones

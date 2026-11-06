@@ -1,0 +1,156 @@
+// Iconos
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
+// Dominio
+import type { FiltrosSnippets } from "@/core/snippets/domain/filtros-snippets";
+// Locales
+import { useLocale } from "@/i18n/LocaleProvider";
+import { ruta } from "@/i18n/rutas";
+import { urlGenerador } from "@/lib/filtros-url";
+import * as m from "@/paraglide/messages";
+
+const claseNumero =
+	"flex h-8 w-8 items-center justify-center rounded-lg border border-border text-sm text-muted transition-colors hover:border-accent hover:text-text";
+
+const claseNumeroActual =
+	"flex h-8 w-8 items-center justify-center rounded-lg border border-accent bg-accent text-sm font-semibold text-white";
+
+const claseFlechaDeshabilitada =
+	"flex h-8 w-8 items-center justify-center rounded-lg border border-border text-sm text-muted/30";
+
+// Ventana de hasta 3 números centrada en la página actual
+function ventana(pagina: number, total: number): number[] {
+	const inicio = Math.max(1, Math.min(pagina - 1, total - 2));
+	return [inicio, inicio + 1, inicio + 2].filter((n) => n >= 1 && n <= total);
+}
+
+// Paginación numerada: flechas, ventana de 3 y salto manual
+export function Paginacion({
+	pagina,
+	totalPaginas,
+	filtros,
+}: {
+	pagina: number;
+	totalPaginas: number;
+	filtros: FiltrosSnippets;
+}) {
+	const locale = useLocale();
+
+	if (totalPaginas <= 1) return null;
+
+	const hayAnterior = pagina > 1;
+	const haySiguiente = pagina < totalPaginas;
+
+	return (
+		<nav
+			aria-label={m.snippet_page_aria({}, { locale })}
+			className="flex flex-wrap items-center justify-center gap-3 pt-2"
+		>
+			<div className="flex items-center gap-2">
+				{/* Flecha anterior */}
+				{hayAnterior ? (
+					<Link
+						href={urlGenerador(locale, filtros, pagina - 1)}
+						aria-label={m.snippet_page_prev_aria({}, { locale })}
+						className={claseNumero}
+					>
+						<ChevronLeft size={16} aria-hidden />
+					</Link>
+				) : (
+					<span aria-hidden className={claseFlechaDeshabilitada}>
+						<ChevronLeft size={16} aria-hidden />
+					</span>
+				)}
+
+				{/* Números (la actual no es enlace) */}
+				{ventana(pagina, totalPaginas).map((numero) =>
+					numero === pagina ? (
+						<span
+							key={numero}
+							aria-current="page"
+							className={claseNumeroActual}
+						>
+							{numero}
+						</span>
+					) : (
+						<Link
+							key={numero}
+							href={urlGenerador(locale, filtros, numero)}
+							aria-label={m.snippet_page_goto_aria(
+								{ page: numero },
+								{ locale },
+							)}
+							className={claseNumero}
+						>
+							{numero}
+						</Link>
+					),
+				)}
+
+				{/* Flecha siguiente */}
+				{haySiguiente ? (
+					<Link
+						href={urlGenerador(locale, filtros, pagina + 1)}
+						aria-label={m.snippet_page_next_aria({}, { locale })}
+						className={claseNumero}
+					>
+						<ChevronRight size={16} aria-hidden />
+					</Link>
+				) : (
+					<span aria-hidden className={claseFlechaDeshabilitada}>
+						<ChevronRight size={16} aria-hidden />
+					</span>
+				)}
+
+				<span className="ml-2 text-xs text-muted">
+					{m.snippet_page_status(
+						{ page: pagina, total: totalPaginas },
+						{ locale },
+					)}
+				</span>
+			</div>
+
+			{/* Salto manual: formulario GET → /generador?pagina=N (sin JavaScript) */}
+			<form
+				action={ruta(locale, "/generator")}
+				method="get"
+				className="flex items-center gap-2"
+			>
+				{filtros.busqueda && (
+					<input type="hidden" name="q" value={filtros.busqueda} />
+				)}
+				{filtros.lenguaje && (
+					<input type="hidden" name="lenguaje" value={filtros.lenguaje} />
+				)}
+				{filtros.orden !== "recientes" && (
+					<input type="hidden" name="orden" value={filtros.orden} />
+				)}
+				{filtros.alcance !== "todo" && (
+					<input type="hidden" name="en" value={filtros.alcance} />
+				)}
+				{filtros.fecha !== "todo" && (
+					<input type="hidden" name="fecha" value={filtros.fecha} />
+				)}
+
+				<label htmlFor="pagina" className="text-xs text-muted">
+					{m.snippet_page_goto_label({}, { locale })}
+				</label>
+				<input
+					id="pagina"
+					name="pagina"
+					type="number"
+					min={1}
+					max={totalPaginas}
+					defaultValue={pagina}
+					className="w-16 rounded-lg border border-border bg-surface-2 px-2 py-1 text-center text-xs text-text outline-none transition-colors focus:border-accent"
+				/>
+				<button
+					type="submit"
+					className="rounded-lg border border-border px-2 py-1 text-xs text-muted transition-colors hover:border-accent hover:text-text"
+				>
+					{m.snippet_page_goto_button({}, { locale })}
+				</button>
+			</form>
+		</nav>
+	);
+}

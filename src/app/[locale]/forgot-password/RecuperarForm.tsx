@@ -13,7 +13,7 @@ import {
 // Tipos
 import { ESTADO_INICIAL } from "@/app/auth-types";
 // Componentes
-import { Turnstile } from "@/components/Turnstile";
+import { Turnstile } from "@/components/auth/Turnstile";
 import { botonPrimario, campo } from "@/components/ui/estilos";
 // Locales
 import { useLocale } from "@/i18n/LocaleProvider";

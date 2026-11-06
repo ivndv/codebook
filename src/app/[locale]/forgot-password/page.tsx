@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { connection } from "next/server";
 // Componentes
-import { Header } from "@/components/Header";
+import { Header } from "@/components/layout/Header";
 // Infraestructura
 import { crearContenedor } from "@/composition/container";
 // Locales

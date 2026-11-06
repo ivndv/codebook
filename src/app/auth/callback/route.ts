@@ -1,7 +1,7 @@
 // Next
 import { type NextRequest, NextResponse } from "next/server";
 // Supabase
-import { createClient } from "@/adapters/outbound/supabase/server";
+import { createClient } from "@/adapters/outbound/supabase/client/server";
 
 // Intercambia el code (OAuth de Google / confirmación de email) por una sesión
 export async function GET(request: NextRequest) {

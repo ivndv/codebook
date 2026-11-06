@@ -4,12 +4,12 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 // Infraestructura
-import { credencialesSchema } from "@/adapters/inbound/next/schemas";
+import { credencialesSchema } from "@/adapters/inbound/next/schemas/schemas";
 // Tipos
 import type { AuthState } from "@/app/auth-types";
 import { crearContenedor } from "@/composition/container";
 // Aplicación
-import { iniciarSesion as iniciarSesionCaso } from "@/core/application/iniciar-sesion";
+import { iniciarSesion as iniciarSesionCaso } from "@/core/auth/application/iniciar-sesion";
 // Locales
 import { ruta } from "@/i18n/rutas";
 // Paraglide

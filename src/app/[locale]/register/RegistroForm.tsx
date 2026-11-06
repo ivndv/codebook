@@ -15,7 +15,7 @@ import { iniciarConGoogle } from "@/app/[locale]/login/actions";
 // Tipos
 import { ESTADO_INICIAL } from "@/app/auth-types";
 // Componentes
-import { Turnstile } from "@/components/Turnstile";
+import { Turnstile } from "@/components/auth/Turnstile";
 import { botonPrimario, botonSecundario, campo } from "@/components/ui/estilos";
 import { useLocale } from "@/i18n/LocaleProvider";
 // Paraglide

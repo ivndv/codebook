@@ -4,8 +4,8 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { notFound } from "next/navigation";
 import Script from "next/script";
 // Componentes
-import { Footer } from "@/components/Footer";
-import { ThemeProvider } from "@/components/ThemeProvider";
+import { Footer } from "@/components/layout/Footer";
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
 import { LocaleProvider } from "@/i18n/LocaleProvider";
 // Paraglide
 import { isLocale, locales } from "@/paraglide/runtime";

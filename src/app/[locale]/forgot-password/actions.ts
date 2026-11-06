@@ -1,12 +1,12 @@
 "use server";
 
 // Infraestructura
-import { recuperacionSchema } from "@/adapters/inbound/next/schemas";
+import { recuperacionSchema } from "@/adapters/inbound/next/schemas/schemas";
 // Tipos
 import type { AuthState } from "@/app/auth-types";
 import { crearContenedor } from "@/composition/container";
 // Aplicación
-import { solicitarRecuperacion as solicitarRecuperacionCaso } from "@/core/application/solicitar-recuperacion";
+import { solicitarRecuperacion as solicitarRecuperacionCaso } from "@/core/auth/application/solicitar-recuperacion";
 // Paraglide
 import * as m from "@/paraglide/messages";
 import { isLocale, type Locale } from "@/paraglide/runtime";
