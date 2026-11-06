@@ -7,10 +7,14 @@ import { createPublicClient } from "@/adapters/outbound/supabase/public";
 import { SupabaseSnippetRepository } from "@/adapters/outbound/supabase/snippet-repository";
 // Aplicación
 import { obtenerSnippetPublico } from "@/core/application/obtener-snippet-publico";
+// Locales
+import * as m from "@/paraglide/messages";
+import { isLocale } from "@/paraglide/runtime";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "Snippet de codebook";
+// Next exige un alt estático: se usa el idioma base
+export const alt = m.meta_og_alt({}, { locale: "es" });
 
 // Recorta el código a las primeras líneas
 function recortarCodigo(code: string): string {
@@ -23,9 +27,10 @@ function recortarCodigo(code: string): string {
 export default async function Image({
 	params,
 }: {
-	params: Promise<{ token: string }>;
+	params: Promise<{ locale: string; token: string }>;
 }) {
-	const { token } = await params;
+	const { locale, token } = await params;
+	const activo = isLocale(locale) ? locale : "es";
 
 	const snippet = z.uuid().safeParse(token).success
 		? await obtenerSnippetPublico(
@@ -34,9 +39,12 @@ export default async function Image({
 			).catch(() => null)
 		: null;
 
-	const codigo = recortarCodigo(snippet?.code ?? "Snippet no disponible");
+	const codigo = recortarCodigo(
+		snippet?.code ?? m.snippet_unavailable({}, { locale: activo }),
+	);
 	const explicacion = (snippet?.explanation ?? "").slice(0, 180);
-	const lenguaje = snippet?.language ?? "snippet";
+	const lenguaje =
+		snippet?.language ?? m.snippet_default_language({}, { locale: activo });
 
 	return new ImageResponse(
 		<div

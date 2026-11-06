@@ -11,6 +11,9 @@ import { CopyButton } from "@/components/ui/CopyButton";
 import { tarjeta } from "@/components/ui/estilos";
 // Tipos
 import type { Snippet } from "@/core/domain/snippet";
+// Locales
+import { useLocale } from "@/i18n/LocaleProvider";
+import * as m from "@/paraglide/messages";
 
 // Líneas de código que se muestran antes de ofrecer "ver más"
 const LINEAS_VISIBLES = 6;
@@ -27,6 +30,8 @@ export function SnippetCard({
 	onShare: (snippet: Snippet) => void;
 	eliminando: boolean;
 }) {
+	const locale = useLocale();
+
 	// Estado
 	const [expandido, setExpandido] = useState(false);
 
@@ -36,6 +41,8 @@ export function SnippetCard({
 	const codigoVisible = expandido
 		? snippet.code
 		: lineas.slice(0, LINEAS_VISIBLES).join("\n");
+	const etiquetaCompartir = m.snippet_share_aria({}, { locale });
+	const etiquetaEliminar = m.snippet_delete_aria({}, { locale });
 
 	return (
 		<article
@@ -49,18 +56,18 @@ export function SnippetCard({
 					<button
 						type="button"
 						onClick={() => onShare(snippet)}
-						aria-label="Compartir el snippet"
-						title="Compartir el snippet"
+						aria-label={etiquetaCompartir}
+						title={etiquetaCompartir}
 						className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-accent hover:text-accent-text"
 					>
 						<Share2 size={14} aria-hidden />
-						Compartir
+						{m.common_share({}, { locale })}
 					</button>
 
 					<CopyButton
 						text={snippet.code}
-						label="código"
-						ariaLabel="Copiar el código"
+						label={m.snippet_copy_label({}, { locale })}
+						ariaLabel={m.snippet_copy_aria({}, { locale })}
 					/>
 
 					<button
@@ -68,8 +75,8 @@ export function SnippetCard({
 						onClick={() => onDelete(snippet.id)}
 						disabled={eliminando}
 						aria-busy={eliminando}
-						aria-label="Eliminar el snippet"
-						title="Eliminar el snippet"
+						aria-label={etiquetaEliminar}
+						title={etiquetaEliminar}
 						className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1 text-xs text-muted transition-colors hover:border-red-500/60 hover:text-red-300 disabled:cursor-not-allowed disabled:opacity-40"
 					>
 						{eliminando ? "…" : <Trash2 size={14} aria-hidden />}
@@ -87,7 +94,9 @@ export function SnippetCard({
 					onClick={() => setExpandido((previo) => !previo)}
 					className="mt-2 text-xs text-accent-text hover:underline"
 				>
-					{expandido ? "ver menos" : `ver ${ocultas} líneas más`}
+					{expandido
+						? m.snippet_show_less({}, { locale })
+						: m.snippet_show_more({ count: ocultas }, { locale })}
 				</button>
 			)}
 

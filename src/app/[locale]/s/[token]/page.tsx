@@ -14,6 +14,10 @@ import { SupabaseSnippetRepository } from "@/adapters/outbound/supabase/snippet-
 import { Badge } from "@/components/ui/Badge";
 // Aplicación
 import { obtenerSnippetPublico } from "@/core/application/obtener-snippet-publico";
+// Locales
+import { ruta } from "@/i18n/rutas";
+import * as m from "@/paraglide/messages";
+import { isLocale } from "@/paraglide/runtime";
 
 // Una sola lectura por request (metadata + página)
 const cargarSnippet = cache(async (token: string) => {
@@ -25,8 +29,8 @@ const cargarSnippet = cache(async (token: string) => {
 export const instant = false;
 
 // Formatea la fecha sin depender de la zona del usuario
-function formatearFecha(iso: string): string {
-	return new Intl.DateTimeFormat("es", { dateStyle: "long" }).format(
+function formatearFecha(iso: string, locale: string): string {
+	return new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(
 		new Date(iso),
 	);
 }
@@ -34,24 +38,25 @@ function formatearFecha(iso: string): string {
 export async function generateMetadata({
 	params,
 }: {
-	params: Promise<{ token: string }>;
+	params: Promise<{ locale: string; token: string }>;
 }): Promise<Metadata> {
-	const { token } = await params;
+	const { locale, token } = await params;
+	const activo = isLocale(locale) ? locale : "es";
 	const snippet = await cargarSnippet(token);
 
 	if (!snippet) {
 		return {
-			title: "Snippet no encontrado · codebook",
+			title: m.meta_snippet_not_found_title({}, { locale: activo }),
 			robots: { index: false, follow: false },
 		};
 	}
 
 	return {
-		title: "Snippet · codebook",
+		title: m.meta_snippet_title({}, { locale: activo }),
 		description: snippet.explanation,
 		robots: { index: false, follow: false },
 		openGraph: {
-			title: "Snippet · codebook",
+			title: m.meta_snippet_title({}, { locale: activo }),
 			description: snippet.explanation,
 			type: "article",
 		},
@@ -61,10 +66,9 @@ export async function generateMetadata({
 
 export default async function SnippetPublicoPage({
 	params,
-}: {
-	params: Promise<{ token: string }>;
-}) {
-	const { token } = await params;
+}: PageProps<"/[locale]/s/[token]">) {
+	const { locale: idioma, token } = await params;
+	const locale = isLocale(idioma) ? idioma : "es";
 
 	if (!z.uuid().safeParse(token).success) notFound();
 
@@ -76,7 +80,7 @@ export default async function SnippetPublicoPage({
 		<main className="mx-auto w-full max-w-3xl flex-1 px-4 py-14 sm:px-6">
 			<header className="mb-8 flex items-center justify-between">
 				<Link
-					href="/"
+					href={ruta(locale, "/")}
 					className="inline-flex items-center gap-2.5 font-semibold tracking-tight"
 				>
 					<span className="grid size-8 place-items-center rounded-lg bg-accent text-white">
@@ -98,9 +102,12 @@ export default async function SnippetPublicoPage({
 			</p>
 
 			<div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5 text-xs text-muted">
-				<span>{formatearFecha(snippet.createdAt)}</span>
-				<Link href="/" className="text-accent-text hover:underline">
-					Crea tu colección en codebook →
+				<span>{formatearFecha(snippet.createdAt, locale)}</span>
+				<Link
+					href={ruta(locale, "/")}
+					className="text-accent-text hover:underline"
+				>
+					{m.snippet_cta_create_collection({}, { locale })}
 				</Link>
 			</div>
 		</main>

@@ -3,6 +3,7 @@ import type { FiltrosSnippets } from "@/core/domain/snippet";
 
 // Construye la URL del generador conservando los filtros activos
 export function urlGenerador(
+	locale: string,
 	filtros: FiltrosSnippets,
 	pagina?: number,
 ): string {
@@ -16,5 +17,5 @@ export function urlGenerador(
 	if (pagina && pagina > 1) params.set("pagina", String(pagina));
 
 	const query = params.toString();
-	return query ? `/generador?${query}` : "/generador";
+	return query ? `/${locale}/generator?${query}` : `/${locale}/generator`;
 }

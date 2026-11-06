@@ -52,3 +52,9 @@ next-env.d.ts
 /.codegraph/
 
 docs/
+
+# paraglide (generado)
+src/paraglide/
+
+# inlang (cache)
+project.inlang/cache/

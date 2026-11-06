@@ -2,18 +2,23 @@
 import { BookOpen } from "lucide-react";
 // Tipos
 import type { Snippet } from "@/core/domain/snippet";
+// Locales
+import { useLocale } from "@/i18n/LocaleProvider";
+import * as m from "@/paraglide/messages";
 
 const MAX_LINEAS = 14;
 
-// Formatea la fecha de creación en español
-function formatearFecha(iso: string): string {
-	return new Intl.DateTimeFormat("es", { dateStyle: "long" }).format(
+// Formatea la fecha de creación en el idioma activo
+function formatearFecha(iso: string, locale: string): string {
+	return new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(
 		new Date(iso),
 	);
 }
 
 // Tarjeta visual que se descarga como PNG
 export function TarjetaCompartir({ snippet }: { snippet: Snippet }) {
+	const locale = useLocale();
+
 	const lineas = snippet.code.split("\n");
 	const codigo =
 		lineas.slice(0, MAX_LINEAS).join("\n") +
@@ -35,7 +40,7 @@ export function TarjetaCompartir({ snippet }: { snippet: Snippet }) {
 				</div>
 
 				<span className="rounded-full border border-accent/30 bg-accent-soft px-2.5 py-1 text-[10px] font-medium uppercase tracking-wide text-accent-text">
-					{snippet.language ?? "snippet"}
+					{snippet.language ?? m.snippet_default_language({}, { locale })}
 				</span>
 			</div>
 
@@ -48,7 +53,7 @@ export function TarjetaCompartir({ snippet }: { snippet: Snippet }) {
 			</p>
 
 			<div className="mt-6 flex items-center justify-between border-t border-border pt-4 text-[10px] text-muted">
-				<span>{formatearFecha(snippet.createdAt)}</span>
+				<span>{formatearFecha(snippet.createdAt, locale)}</span>
 				<span>codebook</span>
 			</div>
 		</div>

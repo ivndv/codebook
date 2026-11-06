@@ -5,6 +5,10 @@ import Link from "next/link";
 import { SnippetCard } from "@/components/SnippetCard";
 // Tipos
 import type { FiltrosSnippets, Snippet } from "@/core/domain/snippet";
+// Locales
+import { useLocale } from "@/i18n/LocaleProvider";
+import { ruta } from "@/i18n/rutas";
+import * as m from "@/paraglide/messages";
 
 // Lista de snippets guardados, con sus estados vacíos
 export function SnippetList({
@@ -20,6 +24,8 @@ export function SnippetList({
 	eliminandoId: string | null;
 	filtros: FiltrosSnippets;
 }) {
+	const locale = useLocale();
+
 	if (snippets.length === 0) {
 		const hayFiltros =
 			filtros.busqueda !== "" ||
@@ -32,15 +38,17 @@ export function SnippetList({
 					<span className="mx-auto grid size-12 place-items-center rounded-2xl bg-accent-soft text-accent-text">
 						<SearchX size={24} aria-hidden />
 					</span>
-					<p className="mt-3 text-sm font-medium">No hay resultados</p>
+					<p className="mt-3 text-sm font-medium">
+						{m.snippet_no_results_title({}, { locale })}
+					</p>
 					<p className="mt-1 text-xs text-muted">
-						Prueba con otro término o quita los filtros.
+						{m.snippet_no_results_body({}, { locale })}
 					</p>
 					<Link
-						href="/generador"
+						href={ruta(locale, "/generator")}
 						className="mt-4 inline-flex text-xs text-accent-text hover:underline"
 					>
-						Limpiar filtros
+						{m.common_clear_filters({}, { locale })}
 					</Link>
 				</div>
 			);
@@ -51,9 +59,11 @@ export function SnippetList({
 				<span className="mx-auto grid size-12 place-items-center rounded-2xl bg-accent-soft text-accent-text">
 					<Inbox size={24} aria-hidden />
 				</span>
-				<p className="mt-3 text-sm font-medium">Todavía no tienes snippets</p>
+				<p className="mt-3 text-sm font-medium">
+					{m.snippet_empty_title({}, { locale })}
+				</p>
 				<p className="mt-1 text-xs text-muted">
-					Pega código arriba, analízalo y guárdalo en tu colección.
+					{m.snippet_empty_body({}, { locale })}
 				</p>
 			</div>
 		);

@@ -29,9 +29,15 @@ import {
 // Datos
 import { ANALISIS_INICIAL } from "@/core/application/dto";
 import { MAX_CODE_LENGTH } from "@/core/domain/snippet";
+// Locales
+import { useLocale } from "@/i18n/LocaleProvider";
+import { ruta } from "@/i18n/rutas";
+import * as m from "@/paraglide/messages";
 
 // Pegar código, analizarlo y guardarlo. El invitado solo analiza
 export function SnippetForm({ logueado }: { logueado: boolean }) {
+	const locale = useLocale();
+
 	// Estado
 	const textareaId = useId();
 	const [code, setCode] = useState("");
@@ -68,7 +74,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 		dispatch({ tipo: "analizar" });
 
 		try {
-			const resultado = await analizar(codigo);
+			const resultado = await analizar(locale, codigo);
 
 			if (!resultado.ok) {
 				dispatch({ tipo: "analisis-error", mensaje: resultado.error });
@@ -86,7 +92,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 			console.error("[analizar]", error);
 			dispatch({
 				tipo: "analisis-error",
-				mensaje: "No se pudo analizar el código. Inténtalo de nuevo.",
+				mensaje: m.err_analyze({}, { locale }),
 			});
 		} finally {
 			peticionRef.current = false;
@@ -125,7 +131,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 		dispatch({ tipo: "guardar" });
 
 		try {
-			const resultado = await guardarSnippet({
+			const resultado = await guardarSnippet(locale, {
 				code: estado.codigoAnalizado,
 				explanation: estado.explanation,
 				language: estado.language,
@@ -137,12 +143,15 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 			}
 
 			setCode("");
-			dispatch({ tipo: "guardado-ok" });
+			dispatch({
+				tipo: "guardado-ok",
+				mensaje: m.gen_saved({}, { locale }),
+			});
 		} catch (error) {
 			console.error("[guardar]", error);
 			dispatch({
 				tipo: "guardado-error",
-				mensaje: "No se pudo guardar el snippet. Inténtalo de nuevo.",
+				mensaje: m.err_save({}, { locale }),
 			});
 		} finally {
 			peticionRef.current = false;
@@ -167,7 +176,9 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 	return (
 		<form onSubmit={manejarEnvio} className="space-y-4">
 			<label htmlFor={textareaId} className="sr-only">
-				{congelado ? "Código analizado" : "Código a analizar"}
+				{congelado
+					? m.gen_label_analyzed({}, { locale })
+					: m.gen_label_to_analyze({}, { locale })}
 			</label>
 
 			<textarea
@@ -177,7 +188,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 				onChange={(event) => cambiarCodigo(event.target.value)}
 				readOnly={congelado}
 				aria-readonly={congelado}
-				placeholder="Pega tu código aquí…"
+				placeholder={m.gen_placeholder({}, { locale })}
 				spellCheck={false}
 				className="min-h-[200px] w-full resize-y rounded-xl border border-border bg-surface-2 p-4 font-mono text-sm leading-relaxed outline-none transition-colors placeholder:text-muted/60 focus:border-accent read-only:cursor-not-allowed read-only:opacity-70"
 			/>
@@ -187,8 +198,8 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 				<span
 					className={`text-xs tabular-nums ${excedeLimite ? "text-red-400" : "text-muted"}`}
 				>
-					{code.length.toLocaleString("es")} /{" "}
-					{MAX_CODE_LENGTH.toLocaleString("es")}
+					{code.length.toLocaleString(locale)} /{" "}
+					{MAX_CODE_LENGTH.toLocaleString(locale)}
 				</span>
 
 				<div className="flex flex-wrap items-center gap-2">
@@ -199,21 +210,21 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 							className={botonPrimario}
 						>
 							<Sparkles size={16} aria-hidden />
-							Analizar
+							{m.gen_analyze({}, { locale })}
 						</button>
 					)}
 
 					{analizando && (
 						<button type="button" disabled aria-busy className={botonPrimario}>
 							<LoaderCircle size={16} aria-hidden className="animate-spin" />
-							Analizando…
+							{m.gen_analyzing({}, { locale })}
 						</button>
 					)}
 
 					{guardando && (
 						<button type="button" disabled aria-busy className={botonPrimario}>
 							<LoaderCircle size={16} aria-hidden className="animate-spin" />
-							Guardando…
+							{m.gen_saving({}, { locale })}
 						</button>
 					)}
 
@@ -224,7 +235,7 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 							className={botonPrimario}
 						>
 							<Save size={16} aria-hidden />
-							Guardar snippet
+							{m.gen_save({}, { locale })}
 						</button>
 					)}
 
@@ -235,14 +246,14 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 							className={botonSecundario}
 						>
 							<RotateCcw size={16} aria-hidden />
-							Reintentar
+							{m.common_retry({}, { locale })}
 						</button>
 					)}
 
 					{mostrarLimpiar && (
 						<button type="button" onClick={limpiar} className={botonSutil}>
 							<Eraser size={16} aria-hidden />
-							Limpiar
+							{m.common_clear({}, { locale })}
 						</button>
 					)}
 				</div>
@@ -250,15 +261,17 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 
 			{excedeLimite && (
 				<p className="text-xs text-red-400">
-					El código supera el máximo de {MAX_CODE_LENGTH.toLocaleString("es")}{" "}
-					caracteres.
+					{m.gen_limit_exceeded(
+						{ max: MAX_CODE_LENGTH.toLocaleString(locale) },
+						{ locale },
+					)}
 				</p>
 			)}
 
 			{congelado && mostrarLimpiar && (
 				<p className="flex items-center gap-1.5 text-xs text-muted">
 					<Lock size={14} aria-hidden />
-					Código congelado. Pulsa «Limpiar» para editarlo.
+					{m.gen_frozen_hint({}, { locale })}
 				</p>
 			)}
 
@@ -292,13 +305,13 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 				<p className="flex flex-wrap items-center gap-1.5 text-xs text-muted">
 					<Lock size={14} aria-hidden />
 					<Link
-						href="/login"
+						href={ruta(locale, "/login")}
 						className="inline-flex items-center gap-1 text-accent-text hover:underline"
 					>
 						<LogIn size={14} aria-hidden />
-						Inicia sesión
+						{m.gen_login_link({}, { locale })}
 					</Link>
-					<span>para guardar este snippet.</span>
+					<span>{m.gen_login_suffix({}, { locale })}</span>
 				</p>
 			)}
 		</form>

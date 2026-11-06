@@ -1,12 +1,18 @@
+// Locales
+import { localeActual } from "@/i18n/servidor";
+import * as m from "@/paraglide/messages";
+
 // Esqueleto mientras el Server Component resuelve sesión y snippets
-export default function Loading() {
+export default async function Loading() {
+	const locale = await localeActual();
+
 	return (
 		<main
 			aria-busy="true"
 			role="status"
 			className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:px-6 sm:py-14"
 		>
-			<span className="sr-only">Cargando…</span>
+			<span className="sr-only">{m.common_loading({}, { locale })}</span>
 
 			<div className="mb-10 max-w-2xl space-y-3">
 				<div className="h-4 w-24 animate-pulse rounded-full bg-surface" />

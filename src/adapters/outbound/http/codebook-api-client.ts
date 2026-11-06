@@ -2,6 +2,7 @@
 import { resumenSchema } from "@/adapters/outbound/http/resumen-schema";
 // Dominio
 import { ErrorResumenIA } from "@/core/domain/errors";
+import type { IdiomaResumen } from "@/core/domain/idioma";
 // Tipos
 import type { SummaryClient } from "@/core/domain/ports/summary-client";
 import type { Summary } from "@/core/domain/snippet";
@@ -21,7 +22,7 @@ export class CodebookApiClient implements SummaryClient {
 	private readonly url = `${process.env.CODEBOOK_API_URL ?? ""}/summarize`;
 	private readonly apiKey = process.env.CODEBOOK_API_KEY ?? "";
 
-	async resumir(code: string): Promise<Summary> {
+	async resumir(code: string, idioma: IdiomaResumen): Promise<Summary> {
 		if (!process.env.CODEBOOK_API_URL) {
 			throw new Error("Falta CODEBOOK_API_URL.");
 		}
@@ -41,7 +42,7 @@ export class CodebookApiClient implements SummaryClient {
 						"Content-Type": "application/json",
 						"X-API-Key": this.apiKey,
 					},
-					body: JSON.stringify({ code }),
+					body: JSON.stringify({ code, locale: idioma }),
 					cache: "no-store",
 					signal: controller.signal,
 				});

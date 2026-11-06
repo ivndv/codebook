@@ -14,6 +14,9 @@ import { SnippetList } from "@/components/SnippetList";
 // Tipos
 import type { FiltrosSnippets, Snippet } from "@/core/domain/snippet";
 import type { Usuario } from "@/core/domain/usuario";
+// Locales
+import { useLocale } from "@/i18n/LocaleProvider";
+import * as m from "@/paraglide/messages";
 
 // Panel de la app: formulario + lista paginada y filtrable
 export function CodebookApp({
@@ -33,6 +36,8 @@ export function CodebookApp({
 	filtros: FiltrosSnippets;
 	lenguajes: string[];
 }) {
+	const locale = useLocale();
+
 	// Estado
 	const logueado = usuario !== null;
 	const [eliminandoId, setEliminandoId] = useState<string | null>(null);
@@ -41,18 +46,17 @@ export function CodebookApp({
 
 	// Handlers
 	async function eliminar(id: string) {
-		if (!window.confirm("¿Eliminar este snippet? No se puede deshacer."))
-			return;
+		if (!window.confirm(m.snippet_delete_confirm({}, { locale }))) return;
 
 		setErrorAccion(null);
 		setEliminandoId(id);
 
 		try {
-			const { error } = await borrarSnippet(id);
+			const { error } = await borrarSnippet(locale, id);
 			if (error) setErrorAccion(error);
 		} catch (error) {
 			console.error("[eliminar]", error);
-			setErrorAccion("No se pudo borrar el snippet.");
+			setErrorAccion(m.err_delete({}, { locale }));
 		} finally {
 			setEliminandoId(null);
 		}
@@ -67,7 +71,7 @@ export function CodebookApp({
 				className="scroll-mt-24 space-y-4 border-t border-border pt-10"
 			>
 				<h2 className="text-base font-semibold tracking-tight">
-					Tus snippets{" "}
+					{m.snippet_heading({}, { locale })}{" "}
 					{logueado && total > 0 && (
 						<span className="font-normal text-muted">({total})</span>
 					)}

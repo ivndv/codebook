@@ -1,25 +1,42 @@
 // Next
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
+// Locales
+import { ruta } from "@/i18n/rutas";
+import * as m from "@/paraglide/messages";
+// Tipos
+import type { Locale } from "@/paraglide/runtime";
 
 // Tecnologías del proyecto, en la barra inferior
 const TECNOLOGIAS = ["Next.js", "Supabase", "FastAPI", "Vercel"];
 
 // Enlaces de navegación del sitio
 const NAVEGACION = [
-	{ href: "/", etiqueta: "Inicio" },
-	{ href: "/generador", etiqueta: "Generador" },
-	{ href: "/login", etiqueta: "Iniciar sesión" },
+	{ href: "/", etiqueta: (locale: Locale) => m.nav_home({}, { locale }) },
+	{
+		href: "/generator",
+		etiqueta: (locale: Locale) => m.nav_generator({}, { locale }),
+	},
+	{
+		href: "/login",
+		etiqueta: (locale: Locale) => m.nav_login({}, { locale }),
+	},
 ];
 
 // Enlaces al proyecto
 const PROYECTO = [
-	{ href: "https://github.com/ivndv/codebook", etiqueta: "Repositorio" },
+	{
+		href: "https://github.com/ivndv/codebook",
+		etiqueta: (locale: Locale) => m.footer_repository({}, { locale }),
+	},
 	{
 		href: "https://github.com/ivndv/codebook#readme",
-		etiqueta: "Documentación",
+		etiqueta: (locale: Locale) => m.footer_documentation({}, { locale }),
 	},
-	{ href: "https://codebook-three.vercel.app", etiqueta: "Producción" },
+	{
+		href: "https://codebook-three.vercel.app",
+		etiqueta: (locale: Locale) => m.footer_production({}, { locale }),
+	},
 ];
 
 // Icono de GitHub (lucide v1 ya no incluye iconos de marca)
@@ -43,7 +60,7 @@ async function obtenerAnio(): Promise<number> {
 }
 
 // Pie de página global: identidad, navegación, proyecto y créditos
-export async function Footer() {
+export async function Footer({ locale }: { locale: Locale }) {
 	const anio = await obtenerAnio();
 
 	return (
@@ -54,7 +71,7 @@ export async function Footer() {
 					{/* Identidad */}
 					<div className="space-y-4">
 						<Link
-							href="/"
+							href={ruta(locale, "/")}
 							className="inline-flex items-center gap-2.5 font-semibold tracking-tight"
 						>
 							<span className="grid size-8 place-items-center rounded-lg bg-accent text-white">
@@ -63,14 +80,13 @@ export async function Footer() {
 							codebook
 						</Link>
 						<p className="max-w-xs text-sm leading-relaxed text-muted">
-							Pega un fragmento y la IA te devuelve un resumen de una línea. Tu
-							memoria de código, siempre a mano.
+							{m.footer_tagline({}, { locale })}
 						</p>
 						<a
 							href="https://github.com/ivndv/codebook"
 							target="_blank"
 							rel="noopener noreferrer"
-							aria-label="Repositorio en GitHub"
+							aria-label={m.footer_github_aria({}, { locale })}
 							className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:border-accent hover:text-accent-text"
 						>
 							<IconoGithub />
@@ -80,16 +96,16 @@ export async function Footer() {
 					{/* Navegación */}
 					<div className="space-y-3">
 						<h3 className="text-xs font-semibold uppercase tracking-wider text-muted">
-							Navegación
+							{m.footer_nav_heading({}, { locale })}
 						</h3>
 						<ul className="space-y-2 text-sm">
 							{NAVEGACION.map((enlace) => (
 								<li key={enlace.href}>
 									<Link
-										href={enlace.href}
+										href={ruta(locale, enlace.href)}
 										className="text-muted transition-colors hover:text-accent-text"
 									>
-										{enlace.etiqueta}
+										{enlace.etiqueta(locale)}
 									</Link>
 								</li>
 							))}
@@ -99,7 +115,7 @@ export async function Footer() {
 					{/* Proyecto */}
 					<div className="space-y-3">
 						<h3 className="text-xs font-semibold uppercase tracking-wider text-muted">
-							Proyecto
+							{m.footer_project_heading({}, { locale })}
 						</h3>
 						<ul className="space-y-2 text-sm">
 							{PROYECTO.map((enlace) => (
@@ -110,7 +126,7 @@ export async function Footer() {
 										rel="noopener noreferrer"
 										className="text-muted transition-colors hover:text-accent-text"
 									>
-										{enlace.etiqueta}
+										{enlace.etiqueta(locale)}
 									</a>
 								</li>
 							))}
@@ -121,8 +137,10 @@ export async function Footer() {
 				{/* Barra inferior: créditos, tecnologías y derechos */}
 				<div className="mt-12 flex flex-col items-center gap-6 border-t border-border pt-8 sm:flex-row sm:justify-between">
 					<p className="text-xs text-muted">
-						© {anio} codebook · Desarrollado por{" "}
-						<span className="font-medium text-text">Ivan Cruz</span>
+						{m.footer_copyright(
+							{ year: anio, author: "Ivan Cruz" },
+							{ locale },
+						)}
 					</p>
 					<div className="flex flex-wrap justify-center gap-2">
 						{TECNOLOGIAS.map((tech) => (

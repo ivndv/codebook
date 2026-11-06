@@ -6,9 +6,13 @@ import { type NextRequest, NextResponse } from "next/server";
 import type { Database } from "@/lib/database.types";
 
 // Refresca la sesión de Supabase en cada request y propaga las cookies nuevas.
-// Lo invoca src/proxy.ts (el antiguo middleware de Next)
-export async function actualizarSesion(request: NextRequest) {
-	let response = NextResponse.next({ request });
+// Lo invoca src/proxy.ts y admite la respuesta que construya el llamador.
+export async function actualizarSesion(
+	request: NextRequest,
+	crearRespuesta: (req: NextRequest) => NextResponse = (req) =>
+		NextResponse.next({ request: req }),
+) {
+	let response = crearRespuesta(request);
 
 	const supabase = createServerClient<Database>(
 		process.env.NEXT_PUBLIC_SUPABASE_URL as string,
@@ -23,7 +27,7 @@ export async function actualizarSesion(request: NextRequest) {
 					for (const { name, value } of cookiesToSet) {
 						request.cookies.set(name, value);
 					}
-					response = NextResponse.next({ request });
+					response = crearRespuesta(request);
 
 					// 2. Y al navegador
 					for (const { name, value, options } of cookiesToSet) {

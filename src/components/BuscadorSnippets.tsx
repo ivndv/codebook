@@ -8,6 +8,9 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
 // Tipos
 import type { FiltrosSnippets } from "@/core/domain/snippet";
+// Locales
+import { useLocale } from "@/i18n/LocaleProvider";
+import * as m from "@/paraglide/messages";
 
 // Espera antes de buscar mientras se escribe
 const RETARDO_MS = 350;
@@ -23,6 +26,8 @@ export function BuscadorSnippets({
 	filtros: FiltrosSnippets;
 	lenguajes: string[];
 }) {
+	const locale = useLocale();
+
 	// Estado
 	const router = useRouter();
 	const pathname = usePathname();
@@ -97,8 +102,8 @@ export function BuscadorSnippets({
 					type="search"
 					value={busqueda}
 					onChange={(evento) => setBusqueda(evento.target.value)}
-					placeholder="Buscar en tus snippets…"
-					aria-label="Buscar en tus snippets"
+					placeholder={m.snippet_search_placeholder({}, { locale })}
+					aria-label={m.snippet_search_aria({}, { locale })}
 					className="h-9 w-full rounded-lg border border-border bg-surface-2 pl-9 pr-3 text-sm text-text outline-none transition-colors placeholder:text-muted/60 focus:border-accent"
 				/>
 				{pendiente && (
@@ -114,12 +119,14 @@ export function BuscadorSnippets({
 				value={filtros.alcance}
 				onChange={(evento) => navegar({ alcance: evento.target.value })}
 				disabled={!busqueda.trim()}
-				aria-label="Buscar en"
+				aria-label={m.snippet_scope_aria({}, { locale })}
 				className={`${claseControl} disabled:cursor-not-allowed disabled:opacity-50`}
 			>
-				<option value="todo">Todo</option>
-				<option value="codigo">Código</option>
-				<option value="explicacion">Explicación</option>
+				<option value="todo">{m.snippet_scope_all({}, { locale })}</option>
+				<option value="codigo">{m.snippet_scope_code({}, { locale })}</option>
+				<option value="explicacion">
+					{m.snippet_scope_explanation({}, { locale })}
+				</option>
 			</select>
 
 			<select
@@ -127,10 +134,10 @@ export function BuscadorSnippets({
 				onChange={(evento) =>
 					navegar({ lenguaje: evento.target.value || null })
 				}
-				aria-label="Filtrar por lenguaje"
+				aria-label={m.snippet_language_filter_aria({}, { locale })}
 				className={claseControl}
 			>
-				<option value="">Todos los lenguajes</option>
+				<option value="">{m.snippet_language_all({}, { locale })}</option>
 				{lenguajes.map((lenguaje) => (
 					<option key={lenguaje} value={lenguaje}>
 						{lenguaje}
@@ -141,23 +148,27 @@ export function BuscadorSnippets({
 			<select
 				value={filtros.fecha}
 				onChange={(evento) => navegar({ fecha: evento.target.value })}
-				aria-label="Filtrar por fecha"
+				aria-label={m.snippet_date_filter_aria({}, { locale })}
 				className={claseControl}
 			>
-				<option value="todo">Cualquier fecha</option>
-				<option value="hoy">Hoy</option>
-				<option value="7d">Últimos 7 días</option>
-				<option value="30d">Últimos 30 días</option>
+				<option value="todo">{m.snippet_date_any({}, { locale })}</option>
+				<option value="hoy">{m.snippet_date_today({}, { locale })}</option>
+				<option value="7d">{m.snippet_date_7d({}, { locale })}</option>
+				<option value="30d">{m.snippet_date_30d({}, { locale })}</option>
 			</select>
 
 			<select
 				value={filtros.orden}
 				onChange={(evento) => navegar({ orden: evento.target.value })}
-				aria-label="Ordenar"
+				aria-label={m.snippet_sort_aria({}, { locale })}
 				className={claseControl}
 			>
-				<option value="recientes">Más recientes</option>
-				<option value="antiguos">Más antiguos</option>
+				<option value="recientes">
+					{m.snippet_sort_recent({}, { locale })}
+				</option>
+				<option value="antiguos">
+					{m.snippet_sort_oldest({}, { locale })}
+				</option>
 			</select>
 
 			{hayFiltros && (
@@ -175,7 +186,7 @@ export function BuscadorSnippets({
 					className="inline-flex h-9 items-center gap-1.5 rounded-lg px-2.5 text-xs text-muted transition-colors hover:bg-accent-soft hover:text-text"
 				>
 					<X size={14} aria-hidden />
-					Limpiar
+					{m.common_clear({}, { locale })}
 				</button>
 			)}
 		</div>

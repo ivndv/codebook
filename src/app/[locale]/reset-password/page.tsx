@@ -1,6 +1,6 @@
 // Next
 
-import { BookOpen } from "lucide-react";
+import { LockKeyhole } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -10,23 +10,37 @@ import { Header } from "@/components/Header";
 // Infraestructura
 import { crearContenedor } from "@/composition/container";
 // Locales
-import { LoginForm } from "./LoginForm";
+import { ruta } from "@/i18n/rutas";
+import { localeActual } from "@/i18n/servidor";
+// Paraglide
+import * as m from "@/paraglide/messages";
+import { isLocale } from "@/paraglide/runtime";
+import { RestablecerForm } from "./RestablecerForm";
 
-export const metadata: Metadata = {
-	title: "Entrar · codebook",
-};
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+	const { locale } = await params;
+	const idioma = isLocale(locale) ? locale : "es";
+
+	return { title: m.meta_reset_title({}, { locale: idioma }) };
+}
 
 // La sesión se resuelve en cada request
 export const instant = false;
 
-export default async function LoginPage() {
+export default async function RestablecerPage() {
+	const locale = await localeActual();
+
 	// El prerender se detiene aquí
 	await connection();
 	const deps = await crearContenedor();
 	const usuario = await deps.sesion.obtenerUsuario();
 
-	// Si ya hay sesión, el formulario de entrada no tiene sentido
-	if (usuario) redirect("/generador");
+	// Solo se llega con la sesión que crea el enlace del correo
+	if (!usuario) redirect(ruta(locale, "/forgot-password"));
 
 	return (
 		<>
@@ -36,30 +50,28 @@ export default async function LoginPage() {
 				<div className="mx-auto w-full max-w-sm">
 					<div className="space-y-3 text-center">
 						<span className="mx-auto grid size-12 place-items-center rounded-xl bg-accent text-white">
-							<BookOpen size={22} aria-hidden />
+							<LockKeyhole size={22} aria-hidden />
 						</span>
 
 						<h1 className="text-3xl font-bold tracking-tight">
-							Bienvenido de nuevo
+							{m.auth_new_password({}, { locale })}
 						</h1>
 						<p className="text-sm text-muted">
-							¿Primera vez?{" "}
-							<Link
-								href="/registro"
-								className="text-accent-text hover:underline"
-							>
-								Crea tu cuenta
-							</Link>
-							.
+							{m.auth_reset_subtitle({}, { locale })}
 						</p>
 					</div>
 
 					<div className="mt-8">
-						<LoginForm />
+						<RestablecerForm />
 					</div>
 
 					<p className="mt-8 text-center text-xs text-muted">
-						Al continuar aceptas el uso personal de codebook.
+						<Link
+							href={ruta(locale, "/login")}
+							className="text-accent-text hover:underline"
+						>
+							{m.auth_back_to_login({}, { locale })}
+						</Link>
 					</p>
 				</div>
 			</main>

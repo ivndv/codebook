@@ -1,6 +1,6 @@
 // Next
 
-import { LockKeyhole } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -10,23 +10,37 @@ import { Header } from "@/components/Header";
 // Infraestructura
 import { crearContenedor } from "@/composition/container";
 // Locales
-import { RestablecerForm } from "./RestablecerForm";
+import { ruta } from "@/i18n/rutas";
+import { localeActual } from "@/i18n/servidor";
+// Paraglide
+import * as m from "@/paraglide/messages";
+import { isLocale } from "@/paraglide/runtime";
+import { LoginForm } from "./LoginForm";
 
-export const metadata: Metadata = {
-	title: "Nueva contraseña · codebook",
-};
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+	const { locale } = await params;
+	const idioma = isLocale(locale) ? locale : "es";
+
+	return { title: m.meta_login_title({}, { locale: idioma }) };
+}
 
 // La sesión se resuelve en cada request
 export const instant = false;
 
-export default async function RestablecerPage() {
+export default async function LoginPage() {
+	const locale = await localeActual();
+
 	// El prerender se detiene aquí
 	await connection();
 	const deps = await crearContenedor();
 	const usuario = await deps.sesion.obtenerUsuario();
 
-	// Solo se llega con la sesión que crea el enlace del correo
-	if (!usuario) redirect("/recuperar");
+	// Si ya hay sesión, el formulario de entrada no tiene sentido
+	if (usuario) redirect(ruta(locale, "/generator"));
 
 	return (
 		<>
@@ -36,25 +50,30 @@ export default async function RestablecerPage() {
 				<div className="mx-auto w-full max-w-sm">
 					<div className="space-y-3 text-center">
 						<span className="mx-auto grid size-12 place-items-center rounded-xl bg-accent text-white">
-							<LockKeyhole size={22} aria-hidden />
+							<BookOpen size={22} aria-hidden />
 						</span>
 
 						<h1 className="text-3xl font-bold tracking-tight">
-							Nueva contraseña
+							{m.auth_login_title({}, { locale })}
 						</h1>
 						<p className="text-sm text-muted">
-							Elige una contraseña nueva para tu cuenta.
+							{m.auth_login_signup_question({}, { locale })}{" "}
+							<Link
+								href={ruta(locale, "/register")}
+								className="text-accent-text hover:underline"
+							>
+								{m.auth_login_signup_link({}, { locale })}
+							</Link>
+							.
 						</p>
 					</div>
 
 					<div className="mt-8">
-						<RestablecerForm />
+						<LoginForm />
 					</div>
 
 					<p className="mt-8 text-center text-xs text-muted">
-						<Link href="/login" className="text-accent-text hover:underline">
-							Volver a entrar
-						</Link>
+						{m.auth_terms({}, { locale })}
 					</p>
 				</div>
 			</main>

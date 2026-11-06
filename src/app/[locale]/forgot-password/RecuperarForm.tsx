@@ -16,10 +16,15 @@ import { ESTADO_INICIAL } from "@/app/auth-types";
 import { Turnstile } from "@/components/Turnstile";
 import { botonPrimario, campo } from "@/components/ui/estilos";
 // Locales
+import { useLocale } from "@/i18n/LocaleProvider";
+// Paraglide
+import * as m from "@/paraglide/messages";
 import { solicitarRecuperacion } from "./actions";
 
 // Formulario para pedir el enlace de recuperación
 export function RecuperarForm() {
+	const locale = useLocale();
+
 	// Estado
 	const [estado, accion, pendiente] = useActionState(
 		solicitarRecuperacion,
@@ -41,9 +46,11 @@ export function RecuperarForm() {
 
 	return (
 		<form action={accion} className="space-y-4">
+			<input type="hidden" name="locale" value={locale} />
+
 			<div className="space-y-1.5">
 				<label htmlFor="email" className="text-xs text-muted">
-					Correo
+					{m.auth_email({}, { locale })}
 				</label>
 				<input
 					id="email"
@@ -51,7 +58,7 @@ export function RecuperarForm() {
 					type="email"
 					required
 					autoComplete="email"
-					placeholder="tu@correo.com"
+					placeholder={m.auth_email_placeholder({}, { locale })}
 					className={campo}
 				/>
 			</div>
@@ -82,12 +89,12 @@ export function RecuperarForm() {
 				{pendiente ? (
 					<>
 						<LoaderCircle size={16} aria-hidden className="animate-spin" />
-						Enviando…
+						{m.auth_forgot_sending({}, { locale })}
 					</>
 				) : (
 					<>
 						<Mail size={16} aria-hidden />
-						Enviar enlace
+						{m.auth_forgot_send({}, { locale })}
 					</>
 				)}
 			</button>

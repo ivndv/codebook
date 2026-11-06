@@ -10,23 +10,37 @@ import { Header } from "@/components/Header";
 // Infraestructura
 import { crearContenedor } from "@/composition/container";
 // Locales
+import { ruta } from "@/i18n/rutas";
+import { localeActual } from "@/i18n/servidor";
+// Paraglide
+import * as m from "@/paraglide/messages";
+import { isLocale } from "@/paraglide/runtime";
 import { RegistroForm } from "./RegistroForm";
 
-export const metadata: Metadata = {
-	title: "Crear cuenta · codebook",
-};
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+	const { locale } = await params;
+	const idioma = isLocale(locale) ? locale : "es";
+
+	return { title: m.meta_register_title({}, { locale: idioma }) };
+}
 
 // La sesión se resuelve en cada request
 export const instant = false;
 
 export default async function RegistroPage() {
+	const locale = await localeActual();
+
 	// El prerender se detiene aquí
 	await connection();
 	const deps = await crearContenedor();
 	const usuario = await deps.sesion.obtenerUsuario();
 
 	// Si ya hay sesión, no tiene sentido el registro
-	if (usuario) redirect("/generador");
+	if (usuario) redirect(ruta(locale, "/generator"));
 
 	return (
 		<>
@@ -40,12 +54,15 @@ export default async function RegistroPage() {
 						</span>
 
 						<h1 className="text-3xl font-bold tracking-tight">
-							Crea tu cuenta
+							{m.auth_register_title({}, { locale })}
 						</h1>
 						<p className="text-sm text-muted">
-							¿Ya tienes cuenta?{" "}
-							<Link href="/login" className="text-accent-text hover:underline">
-								Entra
+							{m.auth_register_have_account({}, { locale })}{" "}
+							<Link
+								href={ruta(locale, "/login")}
+								className="text-accent-text hover:underline"
+							>
+								{m.auth_register_login_link({}, { locale })}
 							</Link>
 							.
 						</p>
@@ -56,7 +73,7 @@ export default async function RegistroPage() {
 					</div>
 
 					<p className="mt-8 text-center text-xs text-muted">
-						Al continuar aceptas el uso personal de codebook.
+						{m.auth_terms({}, { locale })}
 					</p>
 				</div>
 			</main>

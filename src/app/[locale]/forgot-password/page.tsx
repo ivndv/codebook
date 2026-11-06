@@ -9,16 +9,30 @@ import { Header } from "@/components/Header";
 // Infraestructura
 import { crearContenedor } from "@/composition/container";
 // Locales
+import { ruta } from "@/i18n/rutas";
+import { localeActual } from "@/i18n/servidor";
+// Paraglide
+import * as m from "@/paraglide/messages";
+import { isLocale } from "@/paraglide/runtime";
 import { RecuperarForm } from "./RecuperarForm";
 
-export const metadata: Metadata = {
-	title: "Recuperar acceso · codebook",
-};
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+	const { locale } = await params;
+	const idioma = isLocale(locale) ? locale : "es";
+
+	return { title: m.meta_forgot_title({}, { locale: idioma }) };
+}
 
 // La sesión se resuelve en cada request
 export const instant = false;
 
 export default async function RecuperarPage() {
+	const locale = await localeActual();
+
 	// El prerender se detiene aquí
 	await connection();
 	const deps = await crearContenedor();
@@ -36,10 +50,10 @@ export default async function RecuperarPage() {
 						</span>
 
 						<h1 className="text-3xl font-bold tracking-tight">
-							Recupera tu acceso
+							{m.auth_forgot_title({}, { locale })}
 						</h1>
 						<p className="text-sm text-muted">
-							Te enviaremos un enlace para restablecer tu contraseña.
+							{m.auth_forgot_subtitle({}, { locale })}
 						</p>
 					</div>
 
@@ -48,8 +62,11 @@ export default async function RecuperarPage() {
 					</div>
 
 					<p className="mt-8 text-center text-xs text-muted">
-						<Link href="/login" className="text-accent-text hover:underline">
-							Volver a entrar
+						<Link
+							href={ruta(locale, "/login")}
+							className="text-accent-text hover:underline"
+						>
+							{m.auth_back_to_login({}, { locale })}
 						</Link>
 					</p>
 				</div>

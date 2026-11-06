@@ -1,8 +1,7 @@
 "use client";
 
 // Iconos
-import { LoaderCircle, LogIn } from "lucide-react";
-import Link from "next/link";
+import { LoaderCircle, UserPlus } from "lucide-react";
 // React
 import {
 	useActionState,
@@ -11,21 +10,24 @@ import {
 	useRef,
 	useState,
 } from "react";
+// Locales
+import { iniciarConGoogle } from "@/app/[locale]/login/actions";
 // Tipos
 import { ESTADO_INICIAL } from "@/app/auth-types";
 // Componentes
 import { Turnstile } from "@/components/Turnstile";
 import { botonPrimario, botonSecundario, campo } from "@/components/ui/estilos";
-// Locales
-import { iniciarConGoogle, iniciarSesion } from "./actions";
+import { useLocale } from "@/i18n/LocaleProvider";
+// Paraglide
+import * as m from "@/paraglide/messages";
+import { registrar } from "./actions";
 
-// Formulario de entrada con email, contraseña y Turnstile
-export function LoginForm() {
+// Formulario de registro con email, contraseña, confirmación y Turnstile
+export function RegistroForm() {
+	const locale = useLocale();
+
 	// Estado
-	const [estado, accion, pendiente] = useActionState(
-		iniciarSesion,
-		ESTADO_INICIAL,
-	);
+	const [estado, accion, pendiente] = useActionState(registrar, ESTADO_INICIAL);
 	const [token, setToken] = useState("");
 	const [resetSignal, setResetSignal] = useState(0);
 	const pendientePrevio = useRef(false);
@@ -43,9 +45,11 @@ export function LoginForm() {
 	return (
 		<div className="space-y-6">
 			<form action={accion} className="space-y-4">
+				<input type="hidden" name="locale" value={locale} />
+
 				<div className="space-y-1.5">
 					<label htmlFor="email" className="text-xs text-muted">
-						Correo
+						{m.auth_email({}, { locale })}
 					</label>
 					<input
 						id="email"
@@ -53,14 +57,14 @@ export function LoginForm() {
 						type="email"
 						required
 						autoComplete="email"
-						placeholder="tu@correo.com"
+						placeholder={m.auth_email_placeholder({}, { locale })}
 						className={campo}
 					/>
 				</div>
 
 				<div className="space-y-1.5">
 					<label htmlFor="password" className="text-xs text-muted">
-						Contraseña
+						{m.auth_password({}, { locale })}
 					</label>
 					<input
 						id="password"
@@ -68,19 +72,26 @@ export function LoginForm() {
 						type="password"
 						required
 						minLength={6}
-						autoComplete="current-password"
-						placeholder="mínimo 6 caracteres"
+						autoComplete="new-password"
+						placeholder={m.auth_password_placeholder({}, { locale })}
 						className={campo}
 					/>
 				</div>
 
-				<div className="flex justify-end">
-					<Link
-						href="/recuperar"
-						className="text-xs text-muted transition-colors hover:text-accent-text"
-					>
-						¿Olvidaste tu contraseña?
-					</Link>
+				<div className="space-y-1.5">
+					<label htmlFor="confirmPassword" className="text-xs text-muted">
+						{m.auth_password_confirm({}, { locale })}
+					</label>
+					<input
+						id="confirmPassword"
+						name="confirmPassword"
+						type="password"
+						required
+						minLength={6}
+						autoComplete="new-password"
+						placeholder={m.auth_password_confirm_placeholder({}, { locale })}
+						className={campo}
+					/>
 				</div>
 
 				<input type="hidden" name="captchaToken" value={token} />
@@ -109,12 +120,12 @@ export function LoginForm() {
 					{pendiente ? (
 						<>
 							<LoaderCircle size={16} aria-hidden className="animate-spin" />
-							Entrando…
+							{m.auth_register_submitting({}, { locale })}
 						</>
 					) : (
 						<>
-							<LogIn size={16} aria-hidden />
-							Entrar
+							<UserPlus size={16} aria-hidden />
+							{m.auth_register_submit({}, { locale })}
 						</>
 					)}
 				</button>
@@ -124,14 +135,15 @@ export function LoginForm() {
 			<div className="flex items-center gap-3">
 				<span className="h-px flex-1 bg-border" />
 				<span className="text-[10px] uppercase tracking-wide text-muted">
-					o
+					{m.auth_or({}, { locale })}
 				</span>
 				<span className="h-px flex-1 bg-border" />
 			</div>
 
 			<form action={iniciarConGoogle}>
+				<input type="hidden" name="locale" value={locale} />
 				<button type="submit" className={`${botonSecundario} w-full`}>
-					Continuar con Google
+					{m.auth_google({}, { locale })}
 				</button>
 			</form>
 		</div>

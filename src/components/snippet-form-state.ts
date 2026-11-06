@@ -12,7 +12,7 @@ export type AccionAnalisis =
 	  }
 	| { tipo: "analisis-error"; mensaje: string }
 	| { tipo: "guardar" }
-	| { tipo: "guardado-ok" }
+	| { tipo: "guardado-ok"; mensaje: string }
 	| { tipo: "guardado-error"; mensaje: string }
 	| { tipo: "limpiar" };
 
@@ -48,7 +48,7 @@ export function reducer(
 		case "guardado-ok":
 			return {
 				...ANALISIS_INICIAL,
-				exito: "Snippet guardado en tu colección.",
+				exito: accion.mensaje,
 			};
 
 		case "guardado-error":

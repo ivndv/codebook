@@ -20,11 +20,23 @@ import {
 } from "@/core/domain/snippet-campos";
 // Locales
 import { urlGenerador } from "@/lib/filtros-url";
+import * as m from "@/paraglide/messages";
+import { isLocale } from "@/paraglide/runtime";
 
-export const metadata: Metadata = {
-	title: "Generador · codebook",
-	description: "Pega un fragmento y la IA te devuelve un resumen de una línea.",
-};
+// Título y descripción según el idioma de la ruta
+export async function generateMetadata({
+	params,
+}: {
+	params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+	const { locale } = await params;
+	const activo = isLocale(locale) ? locale : "es";
+
+	return {
+		title: m.meta_generator_title({}, { locale: activo }),
+		description: m.meta_generator_description({}, { locale: activo }),
+	};
+}
 
 // La sesión se resuelve en cada request (getClaims usa Date.now())
 export const instant = false;
@@ -40,9 +52,14 @@ function numeroPagina(valor: string | string[] | undefined): number {
 	return Number.isFinite(numero) && numero > 0 ? numero : 1;
 }
 
-export default async function GeneradorPage(props: PageProps<"/generador">) {
+export default async function GeneradorPage(
+	props: PageProps<"/[locale]/generator">,
+) {
 	// El prerender se detiene aquí: todo lo de abajo corre en cada request
 	await connection();
+
+	const { locale: idioma } = await props.params;
+	const locale = isLocale(idioma) ? idioma : "es";
 
 	// 1. Resuelve la sesión, los filtros y la página pedida
 	const deps = await crearContenedor();
@@ -67,7 +84,7 @@ export default async function GeneradorPage(props: PageProps<"/generador">) {
 
 	// 3. Si la página pedida ya no existe (p. ej. borró lo último), vuelve a la válida
 	if (usuario && pedida > pagina.totalPaginas) {
-		redirect(urlGenerador(filtros, pagina.totalPaginas));
+		redirect(urlGenerador(locale, filtros, pagina.totalPaginas));
 	}
 
 	return (
@@ -77,14 +94,13 @@ export default async function GeneradorPage(props: PageProps<"/generador">) {
 			<main className="mx-auto flex min-h-svh w-full max-w-5xl flex-1 flex-col px-4 pt-[calc(var(--header-h)+2rem)] pb-10 sm:px-6 sm:pb-14">
 				<div className="mb-10 max-w-2xl space-y-2">
 					<span className="font-mono text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-accent-text">
-						Generador
+						{m.nav_generator({}, { locale })}
 					</span>
 					<h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-						Pega tu código y entiéndelo
+						{m.gen_title({}, { locale })}
 					</h1>
 					<p className="text-sm leading-relaxed text-muted">
-						La IA te devuelve un resumen de una línea. Con sesión, guárdalo en
-						tu colección.
+						{m.gen_subtitle({}, { locale })}
 					</p>
 				</div>
 

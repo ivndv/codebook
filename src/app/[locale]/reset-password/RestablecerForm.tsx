@@ -9,10 +9,15 @@ import { ESTADO_INICIAL } from "@/app/auth-types";
 // Componentes
 import { botonPrimario, campo } from "@/components/ui/estilos";
 // Locales
+import { useLocale } from "@/i18n/LocaleProvider";
+// Paraglide
+import * as m from "@/paraglide/messages";
 import { restablecerPassword } from "./actions";
 
 // Formulario de contraseña nueva (sesión creada por el enlace del correo)
 export function RestablecerForm() {
+	const locale = useLocale();
+
 	// Estado
 	const [estado, accion, pendiente] = useActionState(
 		restablecerPassword,
@@ -21,9 +26,11 @@ export function RestablecerForm() {
 
 	return (
 		<form action={accion} className="space-y-4">
+			<input type="hidden" name="locale" value={locale} />
+
 			<div className="space-y-1.5">
 				<label htmlFor="password" className="text-xs text-muted">
-					Nueva contraseña
+					{m.auth_new_password({}, { locale })}
 				</label>
 				<input
 					id="password"
@@ -32,14 +39,14 @@ export function RestablecerForm() {
 					required
 					minLength={6}
 					autoComplete="new-password"
-					placeholder="mínimo 6 caracteres"
+					placeholder={m.auth_password_placeholder({}, { locale })}
 					className={campo}
 				/>
 			</div>
 
 			<div className="space-y-1.5">
 				<label htmlFor="confirmPassword" className="text-xs text-muted">
-					Confirmar contraseña
+					{m.auth_password_confirm({}, { locale })}
 				</label>
 				<input
 					id="confirmPassword"
@@ -48,7 +55,7 @@ export function RestablecerForm() {
 					required
 					minLength={6}
 					autoComplete="new-password"
-					placeholder="repite tu contraseña"
+					placeholder={m.auth_password_confirm_placeholder({}, { locale })}
 					className={campo}
 				/>
 			</div>
@@ -70,12 +77,12 @@ export function RestablecerForm() {
 				{pendiente ? (
 					<>
 						<LoaderCircle size={16} aria-hidden className="animate-spin" />
-						Guardando…
+						{m.auth_reset_saving({}, { locale })}
 					</>
 				) : (
 					<>
 						<KeyRound size={16} aria-hidden />
-						Guardar contraseña
+						{m.auth_reset_submit({}, { locale })}
 					</>
 				)}
 			</button>

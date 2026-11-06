@@ -4,7 +4,10 @@ import Link from "next/link";
 // Dominio
 import type { FiltrosSnippets } from "@/core/domain/snippet";
 // Locales
+import { useLocale } from "@/i18n/LocaleProvider";
+import { ruta } from "@/i18n/rutas";
 import { urlGenerador } from "@/lib/filtros-url";
+import * as m from "@/paraglide/messages";
 
 const claseNumero =
 	"flex h-8 w-8 items-center justify-center rounded-lg border border-border text-sm text-muted transition-colors hover:border-accent hover:text-text";
@@ -31,6 +34,8 @@ export function Paginacion({
 	totalPaginas: number;
 	filtros: FiltrosSnippets;
 }) {
+	const locale = useLocale();
+
 	if (totalPaginas <= 1) return null;
 
 	const hayAnterior = pagina > 1;
@@ -38,15 +43,15 @@ export function Paginacion({
 
 	return (
 		<nav
-			aria-label="Paginación de snippets"
+			aria-label={m.snippet_page_aria({}, { locale })}
 			className="flex flex-wrap items-center justify-center gap-3 pt-2"
 		>
 			<div className="flex items-center gap-2">
 				{/* Flecha anterior */}
 				{hayAnterior ? (
 					<Link
-						href={urlGenerador(filtros, pagina - 1)}
-						aria-label="Página anterior"
+						href={urlGenerador(locale, filtros, pagina - 1)}
+						aria-label={m.snippet_page_prev_aria({}, { locale })}
 						className={claseNumero}
 					>
 						<ChevronLeft size={16} aria-hidden />
@@ -70,8 +75,11 @@ export function Paginacion({
 					) : (
 						<Link
 							key={numero}
-							href={urlGenerador(filtros, numero)}
-							aria-label={`Ir a la página ${numero}`}
+							href={urlGenerador(locale, filtros, numero)}
+							aria-label={m.snippet_page_goto_aria(
+								{ page: numero },
+								{ locale },
+							)}
 							className={claseNumero}
 						>
 							{numero}
@@ -82,8 +90,8 @@ export function Paginacion({
 				{/* Flecha siguiente */}
 				{haySiguiente ? (
 					<Link
-						href={urlGenerador(filtros, pagina + 1)}
-						aria-label="Página siguiente"
+						href={urlGenerador(locale, filtros, pagina + 1)}
+						aria-label={m.snippet_page_next_aria({}, { locale })}
 						className={claseNumero}
 					>
 						<ChevronRight size={16} aria-hidden />
@@ -95,13 +103,16 @@ export function Paginacion({
 				)}
 
 				<span className="ml-2 text-xs text-muted">
-					Página {pagina} de {totalPaginas}
+					{m.snippet_page_status(
+						{ page: pagina, total: totalPaginas },
+						{ locale },
+					)}
 				</span>
 			</div>
 
 			{/* Salto manual: formulario GET → /generador?pagina=N (sin JavaScript) */}
 			<form
-				action="/generador"
+				action={ruta(locale, "/generator")}
 				method="get"
 				className="flex items-center gap-2"
 			>
@@ -122,7 +133,7 @@ export function Paginacion({
 				)}
 
 				<label htmlFor="pagina" className="text-xs text-muted">
-					Ir a
+					{m.snippet_page_goto_label({}, { locale })}
 				</label>
 				<input
 					id="pagina"
@@ -137,7 +148,7 @@ export function Paginacion({
 					type="submit"
 					className="rounded-lg border border-border px-2 py-1 text-xs text-muted transition-colors hover:border-accent hover:text-text"
 				>
-					Ir
+					{m.snippet_page_goto_button({}, { locale })}
 				</button>
 			</form>
 		</nav>

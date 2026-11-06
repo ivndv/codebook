@@ -11,6 +11,9 @@ import { TarjetaCompartir } from "@/components/TarjetaCompartir";
 import { botonPrimario, botonSecundario } from "@/components/ui/estilos";
 // Tipos
 import type { Snippet } from "@/core/domain/snippet";
+// Locales
+import { useLocale } from "@/i18n/LocaleProvider";
+import * as m from "@/paraglide/messages";
 
 // Diálogo de compartir: PNG local + enlace público + Web Share
 export function DialogoCompartir({
@@ -20,6 +23,8 @@ export function DialogoCompartir({
 	snippet: Snippet | null;
 	onClose: () => void;
 }) {
+	const locale = useLocale();
+
 	// Estado
 	const tarjetaRef = useRef<HTMLDivElement>(null);
 	const [generando, setGenerando] = useState(false);
@@ -45,7 +50,7 @@ export function DialogoCompartir({
 
 	// Handlers
 	async function crearUrl(): Promise<string | null> {
-		const resultado = await compartirSnippet(actual.id);
+		const resultado = await compartirSnippet(locale, actual.id);
 
 		if (!resultado.ok) {
 			setError(resultado.error);
@@ -76,7 +81,7 @@ export function DialogoCompartir({
 			enlace.click();
 		} catch (e) {
 			console.error("[descargar]", e);
-			setError("No se pudo generar la imagen.");
+			setError(m.err_image({}, { locale }));
 		} finally {
 			setGenerando(false);
 		}
@@ -98,7 +103,7 @@ export function DialogoCompartir({
 			setCopiado(true);
 			setTimeout(() => setCopiado(false), 2_000);
 		} catch {
-			setError("No se pudo copiar el enlace.");
+			setError(m.err_copy_link({}, { locale }));
 		} finally {
 			setGenerando(false);
 		}
@@ -113,7 +118,10 @@ export function DialogoCompartir({
 
 		if (navigator.share) {
 			try {
-				await navigator.share({ title: "Snippet de codebook", url: enlace });
+				await navigator.share({
+					title: m.snippet_share_title({}, { locale }),
+					url: enlace,
+				});
 			} catch {
 				// El usuario canceló el diálogo nativo
 			}
@@ -127,22 +135,24 @@ export function DialogoCompartir({
 		<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
 			<button
 				type="button"
-				aria-label="Cerrar"
+				aria-label={m.common_close({}, { locale })}
 				onClick={onClose}
 				className="absolute inset-0 bg-black/70"
 			/>
 			<div
 				role="dialog"
 				aria-modal="true"
-				aria-label="Compartir snippet"
+				aria-label={m.snippet_dialog_title({}, { locale })}
 				className="relative max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-surface p-4 shadow-card"
 			>
 				<div className="mb-3 flex items-center justify-between">
-					<h2 className="text-sm font-semibold">Compartir snippet</h2>
+					<h2 className="text-sm font-semibold">
+						{m.snippet_dialog_title({}, { locale })}
+					</h2>
 					<button
 						type="button"
 						onClick={onClose}
-						aria-label="Cerrar"
+						aria-label={m.common_close({}, { locale })}
 						className="inline-flex size-8 items-center justify-center rounded-lg text-muted transition-colors hover:bg-accent-soft hover:text-text"
 					>
 						<X size={16} aria-hidden />
@@ -178,7 +188,7 @@ export function DialogoCompartir({
 						) : (
 							<Download size={16} aria-hidden />
 						)}
-						Descargar PNG
+						{m.snippet_download_png({}, { locale })}
 					</button>
 
 					<button
@@ -192,7 +202,9 @@ export function DialogoCompartir({
 						) : (
 							<Link2 size={16} aria-hidden />
 						)}
-						{copiado ? "¡Copiado!" : "Copiar enlace"}
+						{copiado
+							? m.common_copied({}, { locale })
+							: m.snippet_copy_link({}, { locale })}
 					</button>
 
 					<button
@@ -202,7 +214,7 @@ export function DialogoCompartir({
 						className={botonSecundario}
 					>
 						<Share2 size={16} aria-hidden />
-						Compartir
+						{m.common_share({}, { locale })}
 					</button>
 				</div>
 			</div>
