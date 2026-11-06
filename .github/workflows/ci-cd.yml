@@ -1,0 +1,95 @@
+name: codebook CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  VERCEL_ORG_ID: team_Xq3HESm6PY1ec2LJXPuxVjvY
+  VERCEL_PROJECT_ID: prj_BP5goHzxkiwlsUO3iaNiFPiWCeG5
+
+jobs:
+  lint:
+    name: Lint & Types
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node y Bun
+        uses: ./.github/actions/setup
+
+      - name: Lint y formato
+        run: bunx biome ci .
+
+      - name: Tipos e i18n
+        run: bun run typecheck
+
+  build:
+    name: Build
+    needs: [lint]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node y Bun
+        uses: ./.github/actions/setup
+
+      - name: Instalar Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Descargar entorno de Vercel
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Compilar
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Subir build
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-output
+          path: .vercel/output
+          include-hidden-files: true
+          retention-days: 1
+
+  deploy:
+    name: Deploy
+    needs: [lint, build]
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node y Bun
+        uses: ./.github/actions/setup
+
+      - name: Instalar Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Descargar entorno de Vercel
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Bajar build
+        uses: actions/download-artifact@v4
+        with:
+          name: vercel-output
+          path: .vercel/output
+
+      - name: Desplegar
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  gitleaks:
+    uses: ivndv/.github/.github/workflows/gitleaks.yml@main
