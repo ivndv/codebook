@@ -46,7 +46,7 @@ Aplicación web para guardar fragmentos de código junto a su explicación: pega
 
 ## Despliegue
 
-La aplicación se encuentra desplegada en **Vercel**. Puedes usarla directamente aquí: [Codebook](https://codebook-three.vercel.app)
+La aplicación se encuentra desplegada en **Vercel**. Puedes usarla directamente aquí: [Codebook](https://codebook.liuma.app)
 
 ## Licencia
 

@@ -34,7 +34,7 @@ const PROYECTO = [
 		etiqueta: (locale: Locale) => m.footer_documentation({}, { locale }),
 	},
 	{
-		href: "https://codebook-three.vercel.app",
+		href: "https://codebook.liuma.app",
 		etiqueta: (locale: Locale) => m.footer_production({}, { locale }),
 	},
 ];

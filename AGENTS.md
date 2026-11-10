@@ -4,13 +4,13 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 
 ## 1. Visión general
 
-**codebook** es un *pastebin inteligente*: el usuario pega un fragmento de código, el microservicio `codebook-api` devuelve un **resumen de una línea** generado con IA y el usuario lo guarda en su colección personal.
+**codebook** es un _pastebin inteligente_: el usuario pega un fragmento de código, el microservicio `codebook-api` devuelve un **resumen de una línea** generado con IA y el usuario lo guarda en su colección personal.
 
 - **Propósito:** memoria de código propia, con aislamiento por usuario y acceso desde cualquier navegador.
 - **Modos de uso:**
   - **Invitado** → obtiene la explicación; no se guarda nada y no toca la base de datos.
-  - **Autenticado** → además persiste en **Supabase** y aparece en *"Tus snippets"*.
-- **Dominio en producción:** [https://codebook-three.vercel.app](https://codebook-three.vercel.app)
+  - **Autenticado** → además persiste en **Supabase** y aparece en _"Tus snippets"_.
+- **Dominio en producción:** [https://codebook.liuma.app](https://codebook.liuma.app)
 - **Repositorios:** `codebook` (frontend) · `codebook-api` (backend IA)
 
 ## 2. Antes de tocar código
@@ -20,7 +20,10 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 - **Convenciones clave de Next 16:**
   - `params` y `searchParams` son **`Promise`** → `await` obligatorio.
   - Tipos globales **`LayoutProps<'/ruta'>`** y **`PageProps<'/ruta'>`** (sin importar).
+  - `middleware.ts` pasó a llamarse **`src/proxy.ts`** (exporta `proxy`).
+  - Las páginas que leen sesión usan `await connection()` y `export const instant = false` para detener el prerender.
   - Tailwind 4 vía `@import "tailwindcss"` + `@theme`.
+- **i18n (Paraglide):** las rutas viven bajo `src/app/[locale]/`; los catálogos en `messages/{es,en}.json` y la config en `project.inlang/`. No hardcodees textos visibles: usa `m.clave({}, { locale })`. Genera con `bun run i18n` (ya corre en `dev`/`build`).
 
 **CodeGraph** (índice de símbolos del repo): usa `codegraph_explore` (`query`, `maxFiles`, `projectPath`) antes de un grep masivo o de leer varios archivos; devuelve fuente verbatim, rutas de llamada e impacto.
 
@@ -30,59 +33,69 @@ Guía operativa y técnica para agentes de Inteligencia Artificial que colaboren
 
 ## 3. Stack tecnológico
 
-| Capa | Tecnología | Detalle |
-| :--- | :--- | :--- |
-| **Runtime & Gestor** | **Bun** | `bun.lock` |
-| **Framework** | **Next.js 16** | App Router + Turbopack (`src/app/`) |
-| **UI** | **React 19** | Server Components por defecto |
-| **Estilos** | **Tailwind CSS 4** | Tokens de tema en `src/app/globals.css` (`@theme`) |
-| **Lenguaje** | **TypeScript** | Modo estricto |
-| **Linter/Formatter** | **Biome 2** | `biome.json` (tabs + comillas dobles) |
-| **Auth + DB** | **Supabase** | `@supabase/ssr` + RLS por usuario |
-| **Rate limiting** | **Upstash Redis** | `@upstash/ratelimit` + fallback en memoria |
-| **Emails** | **Resend** | SMTP de Supabase Auth en producción |
-| **IA** | **codebook-api** (FastAPI + Groq) | `openai/gpt-oss-20b`, integrada con reintentos |
-| **Validación** | **Zod 4** | Entradas de Server Actions y del cliente HTTP |
-| **Tipos de BD** | **Generados** | `bun run db:types` → `src/lib/database.types.ts` |
-| **Deploy** | **Vercel** | Producción: `https://codebook-three.vercel.app` |
+| Capa                  | Tecnología                        | Detalle                                                 |
+| :-------------------- | :-------------------------------- | :------------------------------------------------------ |
+| **Runtime & Gestor**  | **Bun**                           | `bun.lock`                                              |
+| **Framework**         | **Next.js 16**                    | App Router + Turbopack (`src/app/[locale]/`)            |
+| **UI**                | **React 19**                      | Server Components por defecto                           |
+| **Estilos**           | **Tailwind CSS 4**                | Tokens de tema en `src/app/globals.css` (`@theme`)      |
+| **Lenguaje**          | **TypeScript**                    | Modo estricto                                           |
+| **Linter/Formatter**  | **Biome 2**                       | `biome.json` (tabs + comillas dobles)                   |
+| **Auth + DB**         | **Supabase**                      | `@supabase/ssr` + RLS por usuario                       |
+| **Rate limiting**     | **Upstash Redis**                 | `@upstash/ratelimit` + fallback en memoria              |
+| **Emails**            | **Resend**                        | SMTP de Supabase Auth en producción                     |
+| **i18n**              | **Paraglide JS (Inlang)**         | `project.inlang/` + `messages/{es,en}.json` (base `es`) |
+| **Imagen de snippet** | **html-to-image**                 | genera el PNG de la tarjeta al compartir                |
+| **IA**                | **codebook-api** (FastAPI + Groq) | `openai/gpt-oss-20b`, integrada con reintentos          |
+| **Validación**        | **Zod 4**                         | Entradas de Server Actions y del cliente HTTP           |
+| **Tipos de BD**       | **Generados**                     | `bun run db:types` → `src/lib/database.types.ts`        |
+| **Deploy**            | **Vercel**                        | Producción: `https://codebook.liuma.app`                |
 
 ## 4. Estructura del código
 
 ```plaintext
 codebook/
 ├── src/
-│   ├── proxy.ts                  → Proxy de Next 16 (refresca la sesión de Supabase)
+│   ├── proxy.ts                  → Proxy de Next 16 (idioma + refresco de sesión Supabase)
 │   ├── app/                      → Adaptador de entrada (Next)
-│   │   ├── layout.tsx            → layout raíz (html/body, metadata, tema)
-│   │   ├── page.tsx              → inicio (sesión + primera página de snippets)
-│   │   ├── actions.ts            → Server Actions delgadas
-│   │   ├── error.tsx             → fallback de errores no controlados
-│   │   ├── generador/            → flujo de análisis y guardado (page + loading)
-│   │   ├── login/                → iniciar sesión (page · LoginForm · actions)
-│   │   ├── registro/             → crear cuenta (page · RegistroForm · actions)
-│   │   ├── recuperar/            → solicitar enlace de recuperación
-│   │   ├── restablecer/          → fijar nueva contraseña
-│   │   ├── auth/callback/        → route handler que cambia el `code` por sesión
-│   │   └── s/[token]/            → vista pública de un snippet + Open Graph
+│   │   ├── globals.css           → Tailwind 4 + tokens (@theme)
+│   │   ├── auth-types.ts
+│   │   ├── actions/              → Server Actions (analyze · save · delete · share · idioma)
+│   │   ├── auth/
+│   │   │   ├── callback/         → OAuth de Google: canje del `code`
+│   │   │   └── confirm/          → confirmación de email: `code` o `token_hash`
+│   │   └── [locale]/             → rutas con i18n (es · en)
+│   │       ├── layout.tsx        → layout raíz (html/body, fuentes, tema, i18n, footer)
+│   │       ├── error.tsx         → fallback de errores no controlados
+│   │       ├── (publico)/        → landing estática + header con sesión en cliente
+│   │       ├── (auth)/           → login · register · forgot-password · reset-password
+│   │       ├── (app)/            → generator (protegida, SSR)
+│   │       └── s/[token]/        → vista pública de un snippet + Open Graph
 │   ├── components/               → Adaptador de entrada (UI)
-│   │   ├── CodebookApp.tsx · Header.tsx · Footer.tsx · MenuSesion.tsx
-│   │   ├── SnippetForm.tsx · snippet-form-state.ts · SnippetResult.tsx
-│   │   ├── SnippetList.tsx · SnippetCard.tsx · BuscadorSnippets.tsx
-│   │   ├── Paginacion.tsx · LockedSnippets.tsx · FechaRelativa.tsx
-│   │   ├── DialogoCompartir.tsx · TarjetaCompartir.tsx · Turnstile.tsx
-│   │   └── ui/                   → Badge, CopyButton, estilos
-│   ├── core/                     → Núcleo hexagonal
-│   │   ├── domain/               → snippet, usuario, errors, result, validar-codigo
-│   │   │   └── ports/            → SnippetRepository, SessionReader, AuthGateway, SummaryClient
-│   │   └── application/          → casos de uso (analizar, guardar, listar, borrar, compartir, auth)
+│   │   ├── auth/                 → Turnstile
+│   │   ├── layout/               → Header · Footer · MenuAjustes · NavPrincipal · ThemeProvider
+│   │   ├── snippets/             → CodebookApp · SnippetForm · SnippetList · SnippetCard · …
+│   │   └── ui/                   → Badge · CopyButton · estilos
+│   ├── core/                     → Núcleo hexagonal (por subdominio)
+│   │   ├── auth/
+│   │   │   ├── domain/           → usuario + ports (SessionReader, AuthGateway)
+│   │   │   └── application/      → casos de uso (registrar, iniciar sesión, recuperación)
+│   │   ├── shared/               → errors, result, validar-codigo, idioma
+│   │   └── snippets/
+│   │       ├── domain/           → snippet, filtros, paginación, límites, ports
+│   │       └── application/      → casos de uso (analizar, guardar, listar, borrar, compartir)
 │   ├── adapters/
 │   │   ├── inbound/next/         → origen, rate-limit, schemas (Zod)
 │   │   └── outbound/
-│   │       ├── supabase/         → client, server, proxy, public, repos, auth, sesión
+│   │       ├── supabase/         → client, proxy, public, repos, auth, sesión
 │   │       ├── upstash/          → rate limit distribuido
 │   │       └── http/             → cliente de codebook-api + esquema Zod
+│   ├── i18n/                     → rutas, servidor (localeActual), LocaleProvider
+│   ├── paraglide/                → generado por Paraglide (no editar)
 │   ├── composition/container.ts  → composition root por request
-│   └── lib/                      → database.types.ts (generado) y fechas.ts
+│   └── lib/                      → database.types.ts (generado), fechas.ts, filtros-url.ts
+├── messages/                     → catálogos es.json / en.json (fuente de i18n)
+├── project.inlang/               → configuración de Inlang/Paraglide
 ├── supabase/migrations/          → SQL versionado (tabla snippets + RLS + RPC pública)
 ├── docs/                         → documentación de arquitectura
 ├── biome.json · next.config.ts · .env.example
@@ -90,10 +103,14 @@ codebook/
 
 ## 5. Arquitectura y flujo de datos
 
-- **Hexagonal:** `core` no conoce Next, Supabase ni `fetch`; `adapters/outbound` implementa los puertos y `app`/`components` son adaptadores de entrada.
+- **Hexagonal:** `core` no conoce Next, Supabase ni `fetch`; `adapters/outbound` implementa los puertos y `app`/`components` son adaptadores de entrada. `core` se organiza por subdominio: `core/snippets/`, `core/auth/` y `core/shared/`.
 - **Composición:** `composition/container.ts` une todo por request.
-- **Flujo:** UI o Server Action → composition root → caso de uso de `core/application` → adaptador saliente (Supabase, Upstash o cliente HTTP de `codebook-api`).
-- **`lib`:** solo contiene lo generado (`database.types.ts`) y utilidades puras.
+- **Flujo:** UI o Server Action → composition root → caso de uso de `core/<dominio>/application` → adaptador saliente (Supabase, Upstash o cliente HTTP de `codebook-api`).
+- **i18n:** `src/proxy.ts` resuelve el idioma (cookie `PARAGLIDE_LOCALE` > `Accept-Language` > base `es`), redirige a `/{locale}` y deja `x-codebook-locale` en la request. En servidor, `localeActual()` lee esa cabecera; las rutas se arman con `ruta(locale, path)`.
+- **Renderizado:** las páginas públicas (`(publico)`) son estáticas; el `Header` es cliente y `SessionActions` lee la sesión en el navegador. `(auth)` y `(app)/generator` siguen siendo dinámicas porque comprueban sesión en servidor.
+- **Auth:** `/auth/callback` canjea el `code` de OAuth; `/auth/confirm` confirma emails (`code` o `token_hash`). Los `redirectTo` se inyectan desde las Server Actions, no se hardcodean en el adapter.
+- **`lib`:** solo contiene lo generado (`database.types.ts`) y utilidades puras (`fechas.ts`, `filtros-url.ts`).
+- **`src/paraglide/`:** código generado por Paraglide; no se edita a mano.
 
 ## 6. Variables de entorno
 
@@ -122,14 +139,20 @@ codebook/
 Todos los comandos se ejecutan con **Bun**:
 
 ```bash
-# Desarrollo (Next.js dev en localhost:3000)
+# Desarrollo (compila i18n y arranca Next en localhost:3000)
 bun run dev
 
-# Compilación de producción
+# Compilación de producción (compila i18n y compila Next)
 bun run build
 
 # Servidor de producción
 bun run start
+
+# Compilar los catálogos de Paraglide (dev/build ya lo hacen)
+bun run i18n
+
+# Verificación de tipos
+bun run typecheck
 
 # Verificación de formato/lint (read-only, igual que en CI)
 bun run check
@@ -154,10 +177,11 @@ bun run db:types
 
 - **Lenguaje:** código, comentarios y documentación en **español**.
 - **Comentarios:** `//` de **una sola línea**, en español, **sin punto final**. Nada de bloques `/** */` (salvo pragmas). Si el nombre ya lo explica, no se comenta.
-- **Imports agrupados:** una etiqueta encima de cada grupo → `// React`, `// Next`, `// Supabase`, `// Acciones`, `// Componentes`, `// Datos`, `// Tipos`, `// Locales`.
+- **Imports agrupados:** una etiqueta encima de cada grupo → `// React`, `// Next`, `// Supabase`, `// Infraestructura`, `// Aplicación`, `// Dominio`, `// Componentes`, `// Acciones`, `// Paraglide`, `// Locales`, `// Estilos`, `// Datos`, `// Tipos`.
 - **Pasos numerados:** `// 1. …`, `// 2. …` dentro de la lógica secuencial larga.
 - **Tipado estricto:** prohibido `any`; definir interfaces/types explícitos.
 - **Server Components por defecto:** añade `"use client"` solo cuando haga falta interactividad y **empújalo a las hojas** del árbol.
+- **i18n:** todo texto visible sale de `m.clave({}, { locale })`; los catálogos viven en `messages/{es,en}.json`. No edites `src/paraglide/` a mano.
 
 ### 8.3 Reglas de negocio críticas
 
@@ -170,7 +194,7 @@ bun run db:types
 
 - **PROHIBIDO hacer commits o push sin la aprobación explícita del usuario.**
 - **Flujo de ramas:** desarrollo en `develop`; merge a `main` solo tras aprobación.
-- **Mensajes de commit:** *Conventional Commits* en minúsculas y español (`feat: ...`, `fix: ...`, `chore: ...`).
+- **Mensajes de commit:** _Conventional Commits_ en minúsculas y español (`feat: ...`, `fix: ...`, `chore: ...`).
 - **Despliegue:** Vercel.
 
 <!-- BEGIN:nextjs-agent-rules -->
