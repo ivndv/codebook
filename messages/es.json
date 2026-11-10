@@ -37,7 +37,7 @@
 	"gen_analyze": "Analizar",
 	"gen_analyzing": "Analizando…",
 	"gen_saving": "Guardando…",
-	"gen_save": "Guardar snippet",
+	"gen_save": "Guardar",
 	"gen_limit_exceeded": "El código supera el máximo de {max} caracteres.",
 	"gen_frozen_hint": "Código congelado. Pulsa «Limpiar» para editarlo.",
 	"gen_login_link": "Inicia sesión",

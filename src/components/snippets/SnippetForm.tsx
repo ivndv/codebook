@@ -8,7 +8,6 @@ import {
 	Lock,
 	LogIn,
 	RotateCcw,
-	Save,
 	Sparkles,
 } from "lucide-react";
 // Next
@@ -24,8 +23,8 @@ import { reducer } from "@/components/snippets/snippet-form-state";
 // Estilos
 import {
 	botonPrimario,
-	botonSecundario,
-	botonSutil,
+	botonSecundarioCompacto,
+	botonSutilCompacto,
 } from "@/components/ui/estilos";
 // Datos
 import { ANALISIS_INICIAL } from "@/core/snippets/application/dto";
@@ -57,9 +56,6 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 		estado.fase === "error-guardado";
 
 	const puedeAnalizar = !vacio && !excedeLimite && !ocupado;
-	const mostrarGuardar =
-		logueado &&
-		(estado.fase === "analizado" || estado.fase === "error-guardado");
 	const mostrarReintentar =
 		estado.fase === "analizado" ||
 		estado.fase === "error-analisis" ||
@@ -222,38 +218,24 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 						</button>
 					)}
 
-					{guardando && (
-						<button type="button" disabled aria-busy className={botonPrimario}>
-							<LoaderCircle size={16} aria-hidden className="animate-spin" />
-							{m.gen_saving({}, { locale })}
-						</button>
-					)}
-
-					{mostrarGuardar && (
-						<button
-							type="button"
-							onClick={() => void guardar()}
-							className={botonPrimario}
-						>
-							<Save size={16} aria-hidden />
-							{m.gen_save({}, { locale })}
-						</button>
-					)}
-
 					{mostrarReintentar && (
 						<button
 							type="button"
 							onClick={reintentar}
-							className={botonSecundario}
+							className={botonSecundarioCompacto}
 						>
-							<RotateCcw size={16} aria-hidden />
+							<RotateCcw size={14} aria-hidden />
 							{m.common_retry({}, { locale })}
 						</button>
 					)}
 
 					{mostrarLimpiar && (
-						<button type="button" onClick={limpiar} className={botonSutil}>
-							<Eraser size={16} aria-hidden />
+						<button
+							type="button"
+							onClick={limpiar}
+							className={botonSutilCompacto}
+						>
+							<Eraser size={14} aria-hidden />
 							{m.common_clear({}, { locale })}
 						</button>
 					)}
@@ -299,6 +281,9 @@ export function SnippetForm({ logueado }: { logueado: boolean }) {
 						explanation: estado.explanation,
 						language: estado.language,
 					}}
+					codigo={estado.codigoAnalizado}
+					onSave={logueado ? () => void guardar() : undefined}
+					guardando={guardando}
 				/>
 			)}
 

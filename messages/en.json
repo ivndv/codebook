@@ -37,7 +37,7 @@
 	"gen_analyze": "Analyze",
 	"gen_analyzing": "Analyzing…",
 	"gen_saving": "Saving…",
-	"gen_save": "Save snippet",
+	"gen_save": "Save",
 	"gen_limit_exceeded": "Code exceeds the {max} character limit.",
 	"gen_frozen_hint": "Code is locked. Select “Clear” to edit it.",
 	"gen_login_link": "Sign in",

@@ -21,6 +21,15 @@
 	/* Acción destructiva */
 	--color-danger: #f87171;
 
+	/* Sintaxis de código (highlight.js) */
+	--color-code-keyword: #c792ea;
+	--color-code-string: #a5d6a7;
+	--color-code-number: #ffb86c;
+	--color-code-comment: #6b7280;
+	--color-code-function: #82aaff;
+	--color-code-variable: #89ddff;
+	--color-code-type: #ffcb6b;
+
 	/* Profundidad de tarjeta */
 	--shadow-card: 0 20px 45px -25px rgb(0 0 0 / 70%);
 
@@ -54,6 +63,15 @@ html[data-theme="light"] {
 	/* Acción destructiva, más oscura para pasar AA sobre blanco */
 	--color-danger: #b91c1c;
 
+	/* Sintaxis de código, más oscura para pasar AA sobre blanco */
+	--color-code-keyword: #7c3aed;
+	--color-code-string: #15803d;
+	--color-code-number: #c2410c;
+	--color-code-comment: #6b7280;
+	--color-code-function: #1d4ed8;
+	--color-code-variable: #0369a1;
+	--color-code-type: #a16207;
+
 	/* Profundidad de tarjeta */
 	--shadow-card: 0 20px 45px -25px rgb(20 18 26 / 25%);
 }
@@ -79,6 +97,50 @@ body {
 code,
 pre {
 	font-family: var(--font-mono);
+}
+
+/* Sintaxis del código compartido (highlight.js) */
+.codigo-resaltado .hljs-comment,
+.codigo-resaltado .hljs-quote {
+	color: var(--color-code-comment);
+	font-style: italic;
+}
+
+.codigo-resaltado .hljs-keyword,
+.codigo-resaltado .hljs-selector-tag,
+.codigo-resaltado .hljs-literal,
+.codigo-resaltado .hljs-meta {
+	color: var(--color-code-keyword);
+}
+
+.codigo-resaltado .hljs-string,
+.codigo-resaltado .hljs-regexp,
+.codigo-resaltado .hljs-attr-value {
+	color: var(--color-code-string);
+}
+
+.codigo-resaltado .hljs-number,
+.codigo-resaltado .hljs-symbol,
+.codigo-resaltado .hljs-operator {
+	color: var(--color-code-number);
+}
+
+.codigo-resaltado .hljs-title,
+.codigo-resaltado .hljs-section {
+	color: var(--color-code-function);
+}
+
+.codigo-resaltado .hljs-variable,
+.codigo-resaltado .hljs-params,
+.codigo-resaltado .hljs-attr,
+.codigo-resaltado .hljs-property {
+	color: var(--color-code-variable);
+}
+
+.codigo-resaltado .hljs-type,
+.codigo-resaltado .hljs-built_in,
+.codigo-resaltado .hljs-title.class_ {
+	color: var(--color-code-type);
 }
 
 /* Selección y foco con el acento del tema */
