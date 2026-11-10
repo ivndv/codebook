@@ -2,12 +2,12 @@
 
 // Iconos
 import {
+	CircleUserRound,
 	Globe,
 	LogIn,
 	LogOut,
 	Monitor,
 	Moon,
-	Settings,
 	Sun,
 } from "lucide-react";
 // Next
@@ -112,11 +112,11 @@ export function MenuAjustes({ email }: { email: string | null }) {
 				className="inline-flex size-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-accent-soft hover:text-text"
 			>
 				{email ? (
-					<span className="grid size-7 place-items-center rounded-full bg-accent text-[11px] font-semibold text-white">
+					<span className="grid size-8 place-items-center rounded-full bg-accent text-xs font-semibold leading-none text-white">
 						{inicial}
 					</span>
 				) : (
-					<Settings size={16} aria-hidden />
+					<CircleUserRound size={18} aria-hidden />
 				)}
 			</button>
 
@@ -126,19 +126,19 @@ export function MenuAjustes({ email }: { email: string | null }) {
 					role="dialog"
 					aria-label={m.nav_settings({}, { locale })}
 					tabIndex={-1}
-					className="absolute right-0 top-full z-50 mt-2 w-72 rounded-2xl border border-border bg-surface p-2 shadow-card outline-none"
+					className="absolute right-0 top-full z-50 mt-2 w-64 rounded-2xl border border-border bg-surface p-2 shadow-card outline-none"
 				>
 					{/* Cuenta */}
 					{email ? (
-						<div className="flex items-center gap-3 px-2 py-2">
-							<span className="grid size-9 shrink-0 place-items-center rounded-full bg-accent text-sm font-semibold text-white">
+						<div className="flex items-center gap-3 px-2 py-1.5">
+							<span className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-xs font-semibold leading-none text-white">
 								{inicial}
 							</span>
 							<div className="min-w-0">
-								<p className="truncate text-sm font-medium text-text">
+								<p className="truncate text-[13px] font-medium text-text">
 									{email}
 								</p>
-								<p className="text-[11px] text-muted">
+								<p className="text-[10px] text-muted">
 									{m.nav_account({}, { locale })}
 								</p>
 							</div>
@@ -146,14 +146,14 @@ export function MenuAjustes({ email }: { email: string | null }) {
 					) : null}
 
 					{/* Preferencias */}
-					<section className="mt-1 border-t border-border px-2 pb-2 pt-2">
-						<p className="pb-1 text-[11px] font-semibold uppercase tracking-wide text-muted">
+					<section className="mt-1 border-t border-border px-2 pb-1.5 pt-1.5">
+						<p className="pb-1 text-[10px] font-semibold uppercase tracking-wide text-muted">
 							{m.nav_preferences({}, { locale })}
 						</p>
 
-						<div className="flex items-center justify-between gap-3 py-1.5">
-							<span className="flex items-center gap-2 text-sm text-muted">
-								<Globe size={15} aria-hidden />
+						<div className="flex items-center justify-between gap-3 py-1">
+							<span className="flex items-center gap-2 text-[13px] text-muted">
+								<Globe size={14} aria-hidden />
 								{m.nav_language({}, { locale })}
 							</span>
 
@@ -169,7 +169,7 @@ export function MenuAjustes({ email }: { email: string | null }) {
 										<label
 											key={valor}
 											htmlFor={`idioma-${valor}`}
-											className={`cursor-pointer rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+											className={`cursor-pointer rounded-md px-2 py-0.5 text-[11px] font-medium transition-colors ${
 												activo
 													? "bg-surface text-text shadow-sm"
 													: "text-muted hover:text-text"
@@ -191,9 +191,9 @@ export function MenuAjustes({ email }: { email: string | null }) {
 							</div>
 						</div>
 
-						<div className="flex items-center justify-between gap-3 py-1.5">
-							<span className="flex items-center gap-2 text-sm text-muted">
-								<Sun size={15} aria-hidden />
+						<div className="flex items-center justify-between gap-3 py-1">
+							<span className="flex items-center gap-2 text-[13px] text-muted">
+								<Sun size={14} aria-hidden />
 								{m.theme_label({}, { locale })}
 							</span>
 
@@ -211,7 +211,7 @@ export function MenuAjustes({ email }: { email: string | null }) {
 											key={valor}
 											htmlFor={`tema-${valor}`}
 											title={etiqueta}
-											className={`grid size-7 cursor-pointer place-items-center rounded-md transition-colors ${
+											className={`grid size-6 cursor-pointer place-items-center rounded-md transition-colors ${
 												activo
 													? "bg-surface text-text shadow-sm"
 													: "text-muted hover:text-text"
@@ -227,7 +227,7 @@ export function MenuAjustes({ email }: { email: string | null }) {
 												onChange={() => setTheme(valor)}
 												className="sr-only"
 											/>
-											<Icono size={14} aria-hidden />
+											<Icono size={13} aria-hidden />
 										</label>
 									);
 								})}
@@ -236,14 +236,14 @@ export function MenuAjustes({ email }: { email: string | null }) {
 					</section>
 
 					{/* Sesión */}
-					<div className="mt-1 border-t border-border px-2 pt-2">
+					<div className="mt-1 border-t border-border px-2 pt-1.5">
 						{email ? (
 							<form action={cerrarSesion}>
 								<button
 									type="submit"
-									className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-sm text-danger transition-colors hover:bg-danger/10"
+									className="flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-[13px] text-danger transition-colors hover:bg-danger/10"
 								>
-									<LogOut size={15} aria-hidden />
+									<LogOut size={14} aria-hidden />
 									{m.nav_logout({}, { locale })}
 								</button>
 							</form>
@@ -251,9 +251,9 @@ export function MenuAjustes({ email }: { email: string | null }) {
 							<Link
 								href={ruta(locale, "/login")}
 								onClick={() => setAbierto(false)}
-								className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-2 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
+								className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-2 py-1.5 text-[13px] font-medium text-white transition-colors hover:bg-accent-hover"
 							>
-								<LogIn size={15} aria-hidden />
+								<LogIn size={14} aria-hidden />
 								{m.nav_login({}, { locale })}
 							</Link>
 						)}
