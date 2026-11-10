@@ -3,7 +3,7 @@
 // Iconos
 import { MessageSquareText, Share2, Trash2 } from "lucide-react";
 // React
-import { useState } from "react";
+import { useMemo, useState } from "react";
 // Componentes
 import { FechaRelativa } from "@/components/snippets/FechaRelativa";
 import { Badge } from "@/components/ui/Badge";
@@ -13,6 +13,9 @@ import { tarjeta } from "@/components/ui/estilos";
 import type { Snippet } from "@/core/snippets/domain/snippet";
 // Locales
 import { useLocale } from "@/i18n/LocaleProvider";
+// Infraestructura
+import { resaltarCodigo } from "@/lib/resaltar-codigo";
+// Paraglide
 import * as m from "@/paraglide/messages";
 
 // Líneas de código que se muestran antes de ofrecer "ver más"
@@ -41,6 +44,10 @@ export function SnippetCard({
 	const codigoVisible = expandido
 		? snippet.code
 		: lineas.slice(0, LINEAS_VISIBLES).join("\n");
+	const html = useMemo(
+		() => resaltarCodigo(codigoVisible, snippet.language),
+		[codigoVisible, snippet.language],
+	);
 	const etiquetaCompartir = m.snippet_share_aria({}, { locale });
 	const etiquetaEliminar = m.snippet_delete_aria({}, { locale });
 
@@ -84,8 +91,9 @@ export function SnippetCard({
 				</span>
 			</header>
 
-			<pre className="overflow-x-auto rounded-lg border border-border bg-bg p-3.5 text-xs leading-relaxed">
-				<code>{codigoVisible}</code>
+			<pre className="codigo-resaltado overflow-x-auto rounded-lg border border-border bg-bg p-3.5 text-xs leading-relaxed">
+				{/* biome-ignore lint/security/noDangerouslySetInnerHtml: highlight.js escapa el código antes de generar el HTML */}
+				<code dangerouslySetInnerHTML={{ __html: html }} />
 			</pre>
 
 			{ocultas > 0 && (

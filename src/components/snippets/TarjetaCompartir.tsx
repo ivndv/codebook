@@ -4,9 +4,11 @@ import { BookOpen } from "lucide-react";
 import type { Snippet } from "@/core/snippets/domain/snippet";
 // Locales
 import { useLocale } from "@/i18n/LocaleProvider";
+// Infraestructura
+import { resaltarCodigo } from "@/lib/resaltar-codigo";
 import * as m from "@/paraglide/messages";
 
-const MAX_LINEAS = 14;
+const MAX_LINEAS = 24;
 
 // Formatea la fecha de creación en el idioma activo
 function formatearFecha(iso: string, locale: string): string {
@@ -23,10 +25,11 @@ export function TarjetaCompartir({ snippet }: { snippet: Snippet }) {
 	const codigo =
 		lineas.slice(0, MAX_LINEAS).join("\n") +
 		(lineas.length > MAX_LINEAS ? "\n…" : "");
+	const html = resaltarCodigo(codigo, snippet.language);
 
 	return (
 		<div
-			className="w-[640px] bg-bg p-8 text-text"
+			className="w-[800px] bg-bg p-8 text-text"
 			style={{ fontFamily: "var(--font-sans)" }}
 		>
 			<div className="flex items-center justify-between">
@@ -44,8 +47,9 @@ export function TarjetaCompartir({ snippet }: { snippet: Snippet }) {
 				</span>
 			</div>
 
-			<pre className="mt-6 max-h-[280px] overflow-hidden rounded-xl border border-border bg-surface-2 p-4 font-mono text-[12px] leading-relaxed">
-				<code>{codigo}</code>
+			<pre className="codigo-resaltado mt-6 max-h-[520px] overflow-hidden rounded-xl border border-border bg-surface-2 p-4 font-mono text-[12px] leading-relaxed">
+				{/* biome-ignore lint/security/noDangerouslySetInnerHtml: highlight.js escapa el código antes de generar el HTML */}
+				<code dangerouslySetInnerHTML={{ __html: html }} />
 			</pre>
 
 			<p className="mt-4 text-sm leading-relaxed text-muted">

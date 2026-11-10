@@ -143,7 +143,7 @@ export function DialogoCompartir({
 				role="dialog"
 				aria-modal="true"
 				aria-label={m.snippet_dialog_title({}, { locale })}
-				className="relative max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-surface p-4 shadow-card"
+				className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-2xl border border-border bg-surface p-4 shadow-card"
 			>
 				<div className="mb-3 flex items-center justify-between">
 					<h2 className="text-sm font-semibold">
@@ -160,7 +160,7 @@ export function DialogoCompartir({
 				</div>
 
 				<div className="overflow-x-auto rounded-xl bg-bg p-3">
-					<div ref={tarjetaRef} className="mx-auto w-[640px]">
+					<div ref={tarjetaRef} className="mx-auto w-[800px]">
 						<TarjetaCompartir snippet={snippet} />
 					</div>
 				</div>

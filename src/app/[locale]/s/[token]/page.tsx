@@ -16,6 +16,9 @@ import { Badge } from "@/components/ui/Badge";
 import { obtenerSnippetPublico } from "@/core/snippets/application/obtener-snippet-publico";
 // Locales
 import { ruta } from "@/i18n/rutas";
+// Infraestructura
+import { resaltarCodigo } from "@/lib/resaltar-codigo";
+// Paraglide
 import * as m from "@/paraglide/messages";
 import { isLocale } from "@/paraglide/runtime";
 
@@ -76,6 +79,8 @@ export default async function SnippetPublicoPage({
 
 	if (!snippet) notFound();
 
+	const html = resaltarCodigo(snippet.code, snippet.language);
+
 	return (
 		<main className="mx-auto w-full max-w-3xl flex-1 px-4 py-14 sm:px-6">
 			<header className="mb-8 flex items-center justify-between">
@@ -92,8 +97,9 @@ export default async function SnippetPublicoPage({
 				{snippet.language && <Badge>{snippet.language}</Badge>}
 			</header>
 
-			<pre className="overflow-x-auto rounded-xl border border-border bg-surface-2 p-5 text-sm leading-relaxed">
-				<code>{snippet.code}</code>
+			<pre className="codigo-resaltado overflow-x-auto rounded-xl border border-border bg-surface-2 p-5 text-sm leading-relaxed">
+				{/* biome-ignore lint/security/noDangerouslySetInnerHtml: highlight.js escapa el código antes de generar el HTML */}
+				<code dangerouslySetInnerHTML={{ __html: html }} />
 			</pre>
 
 			<p className="mt-4 flex items-start gap-2 text-sm leading-relaxed text-muted">
