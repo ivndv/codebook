@@ -3,14 +3,8 @@
 import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { connection } from "next/server";
-// Componentes
-import { Header } from "@/components/layout/Header";
-// Infraestructura
-import { crearContenedor } from "@/composition/container";
 // Locales
 import { ruta } from "@/i18n/rutas";
-import { localeActual } from "@/i18n/servidor";
 import * as m from "@/paraglide/messages";
 import { isLocale } from "@/paraglide/runtime";
 
@@ -29,14 +23,12 @@ export async function generateMetadata({
 	};
 }
 
-// La sesión se resuelve en cada request (getHeader)
-export const instant = false;
-
 const ctaPrimario =
 	"inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-hover";
 
-export default async function LandingPage() {
-	const locale = await localeActual();
+export default async function LandingPage({ params }: PageProps<"/[locale]">) {
+	const { locale: idioma } = await params;
+	const locale = isLocale(idioma) ? idioma : "es";
 
 	// Pasos del flujo, como píldoras bajo el titular
 	const pasos = [
@@ -45,15 +37,8 @@ export default async function LandingPage() {
 		{ numero: "03", texto: m.home_step_3({}, { locale }) },
 	];
 
-	// Solo necesitamos la sesión para el estado del header
-	await connection();
-	const deps = await crearContenedor();
-	const usuario = await deps.sesion.obtenerUsuario();
-
 	return (
 		<>
-			<Header usuario={usuario} />
-
 			<main className="flex min-h-svh flex-col">
 				<section className="relative flex min-h-svh items-center overflow-hidden pt-[var(--header-h)]">
 					<div

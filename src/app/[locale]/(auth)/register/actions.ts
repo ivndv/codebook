@@ -4,6 +4,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 // Infraestructura
+import { obtenerOrigen } from "@/adapters/inbound/next/origen";
 import { credencialesSchema } from "@/adapters/inbound/next/schemas/schemas";
 // Tipos
 import type { AuthState } from "@/app/auth-types";
@@ -53,7 +54,9 @@ export async function registrar(
 	}
 
 	const deps = await crearContenedor();
-	const resultado = await registrarCaso(entrada.data, deps.auth);
+	const origen = await obtenerOrigen();
+	const redirectTo = `${origen}/auth/confirm?next=${encodeURIComponent(ruta(locale, "/generator"))}`;
+	const resultado = await registrarCaso(entrada.data, redirectTo, deps.auth);
 
 	if (!resultado.ok) {
 		return {

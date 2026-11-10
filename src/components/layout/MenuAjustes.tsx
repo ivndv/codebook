@@ -17,7 +17,7 @@ import { useTheme } from "next-themes";
 // React
 import { useEffect, useRef, useState } from "react";
 // Acciones
-import { cerrarSesion } from "@/app/[locale]/login/actions";
+import { cerrarSesion } from "@/app/[locale]/(auth)/login/actions";
 // Locales
 import { useLocale } from "@/i18n/LocaleProvider";
 import { ruta } from "@/i18n/rutas";

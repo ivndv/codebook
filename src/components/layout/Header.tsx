@@ -1,18 +1,19 @@
+"use client";
+
 // Iconos
 import { BookOpen } from "lucide-react";
 import Link from "next/link";
 // Componentes
-import { MenuAjustes } from "@/components/layout/MenuAjustes";
 import { NavPrincipal } from "@/components/layout/NavPrincipal";
-// Tipos
-import type { Usuario } from "@/core/auth/domain/usuario";
+import { SessionActions } from "@/components/layout/SessionActions";
 // Locales
+import { useLocale } from "@/i18n/LocaleProvider";
 import { ruta } from "@/i18n/rutas";
-import { localeActual } from "@/i18n/servidor";
 
-// Barra superior fija: marca, navegación y ajustes (Server Component)
-export async function Header({ usuario }: { usuario: Usuario | null }) {
-	const locale = await localeActual();
+// Barra superior fija: marca, navegación y sesión del navegador
+export function Header() {
+	const locale = useLocale();
+
 	return (
 		<header className="fixed inset-x-0 top-0 z-40 border-b border-border/70 bg-bg/90 pt-[env(safe-area-inset-top)] backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-bg/40">
 			<div className="mx-auto grid h-16 w-full max-w-5xl grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4 px-4 sm:px-6">
@@ -29,7 +30,7 @@ export async function Header({ usuario }: { usuario: Usuario | null }) {
 				<NavPrincipal />
 
 				<div className="justify-self-end">
-					<MenuAjustes email={usuario?.email ?? null} />
+					<SessionActions />
 				</div>
 			</div>
 		</header>

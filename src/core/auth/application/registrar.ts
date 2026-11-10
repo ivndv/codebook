@@ -11,6 +11,7 @@ import { err, ok, type Result } from "@/core/shared/result";
 // Crea una cuenta nueva (el captcha lo valida Supabase)
 export async function registrar(
 	credenciales: CredencialesAuth,
+	redirectTo: string,
 	gateway: AuthGateway,
 ): Promise<Result<ResultadoAuth, ErrorDominio>> {
 	if (!credenciales.email || !credenciales.password) {
@@ -28,7 +29,10 @@ export async function registrar(
 	}
 
 	try {
-		const { requiereConfirmacion } = await gateway.registrar(credenciales);
+		const { requiereConfirmacion } = await gateway.registrar(
+			credenciales,
+			redirectTo,
+		);
 
 		return ok({
 			mensaje: requiereConfirmacion

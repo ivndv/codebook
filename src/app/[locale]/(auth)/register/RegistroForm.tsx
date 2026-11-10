@@ -11,7 +11,7 @@ import {
 	useState,
 } from "react";
 // Locales
-import { iniciarConGoogle } from "@/app/[locale]/login/actions";
+import { iniciarConGoogle } from "@/app/[locale]/(auth)/login/actions";
 // Tipos
 import { ESTADO_INICIAL } from "@/app/auth-types";
 // Componentes

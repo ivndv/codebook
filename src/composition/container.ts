@@ -1,5 +1,4 @@
 // Infraestructura
-import { obtenerOrigen } from "@/adapters/inbound/next/origen";
 import { CodebookApiClient } from "@/adapters/outbound/http/codebook-api/client";
 import { SupabaseAuthGateway } from "@/adapters/outbound/supabase/auth/auth-gateway";
 import { SupabaseSessionReader } from "@/adapters/outbound/supabase/auth/session-reader";
@@ -9,10 +8,9 @@ import { SupabaseSnippetRepository } from "@/adapters/outbound/supabase/reposito
 // Composition root: crea los adaptadores de UNA request
 export async function crearContenedor() {
 	const supabase = await createClient();
-	const origen = await obtenerOrigen();
 
 	return {
-		auth: new SupabaseAuthGateway(supabase, origen),
+		auth: new SupabaseAuthGateway(supabase),
 		sesion: new SupabaseSessionReader(supabase),
 		snippets: new SupabaseSnippetRepository(supabase),
 		resumen: new CodebookApiClient(),

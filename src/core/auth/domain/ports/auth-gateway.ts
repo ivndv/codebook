@@ -20,10 +20,14 @@ export interface ResultadoAuth {
 export interface AuthGateway {
 	registrar(
 		credenciales: CredencialesAuth,
+		redirectTo: string,
 	): Promise<{ requiereConfirmacion: boolean }>;
 	iniciarSesion(credenciales: CredencialesAuth): Promise<void>;
-	solicitarRecuperacion(credenciales: CredencialesRecuperacion): Promise<void>;
+	solicitarRecuperacion(
+		credenciales: CredencialesRecuperacion,
+		redirectTo: string,
+	): Promise<void>;
 	actualizarPassword(password: string): Promise<void>;
 	cerrarSesion(): Promise<void>;
-	obtenerUrlGoogle(): Promise<string>;
+	obtenerUrlGoogle(redirectTo: string): Promise<string>;
 }

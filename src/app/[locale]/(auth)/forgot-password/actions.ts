@@ -1,12 +1,15 @@
 "use server";
 
 // Infraestructura
+import { obtenerOrigen } from "@/adapters/inbound/next/origen";
 import { recuperacionSchema } from "@/adapters/inbound/next/schemas/schemas";
 // Tipos
 import type { AuthState } from "@/app/auth-types";
 import { crearContenedor } from "@/composition/container";
 // Aplicación
 import { solicitarRecuperacion as solicitarRecuperacionCaso } from "@/core/auth/application/solicitar-recuperacion";
+// Locales
+import { ruta } from "@/i18n/rutas";
 // Paraglide
 import * as m from "@/paraglide/messages";
 import { isLocale, type Locale } from "@/paraglide/runtime";
@@ -37,7 +40,13 @@ export async function solicitarRecuperacion(
 	}
 
 	const deps = await crearContenedor();
-	const resultado = await solicitarRecuperacionCaso(entrada.data, deps.auth);
+	const origen = await obtenerOrigen();
+	const redirectTo = `${origen}/auth/confirm?next=${encodeURIComponent(ruta(locale, "/reset-password"))}`;
+	const resultado = await solicitarRecuperacionCaso(
+		entrada.data,
+		redirectTo,
+		deps.auth,
+	);
 
 	if (!resultado.ok) {
 		return { error: m.auth_error_invalid_reset({}, { locale }), message: null };

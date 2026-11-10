@@ -15,6 +15,7 @@ const MENSAJE =
 // Envía el enlace de recuperación (el captcha lo valida Supabase)
 export async function solicitarRecuperacion(
 	credenciales: CredencialesRecuperacion,
+	redirectTo: string,
 	gateway: AuthGateway,
 ): Promise<Result<ResultadoAuth, ErrorDominio>> {
 	if (!credenciales.email) {
@@ -29,7 +30,7 @@ export async function solicitarRecuperacion(
 	}
 
 	try {
-		await gateway.solicitarRecuperacion(credenciales);
+		await gateway.solicitarRecuperacion(credenciales, redirectTo);
 		return ok({ mensaje: MENSAJE });
 	} catch (error) {
 		if (error instanceof ErrorCaptcha) {

@@ -17,21 +17,17 @@ function traducirError(mensaje: string): Error {
 
 // Adaptador Supabase del puerto AuthGateway
 export class SupabaseAuthGateway implements AuthGateway {
-	constructor(
-		private readonly supabase: SupabaseClient<Database>,
-		private readonly origen: string,
-	) {}
+	constructor(private readonly supabase: SupabaseClient<Database>) {}
 
-	async registrar({
-		email,
-		password,
-		captchaToken,
-	}: CredencialesAuth): Promise<{ requiereConfirmacion: boolean }> {
+	async registrar(
+		{ email, password, captchaToken }: CredencialesAuth,
+		redirectTo: string,
+	): Promise<{ requiereConfirmacion: boolean }> {
 		const { data, error } = await this.supabase.auth.signUp({
 			email,
 			password,
 			options: {
-				emailRedirectTo: `${this.origen}/auth/callback`,
+				emailRedirectTo: redirectTo,
 				captchaToken,
 			},
 		});
@@ -55,12 +51,12 @@ export class SupabaseAuthGateway implements AuthGateway {
 		if (error) throw traducirError(error.message);
 	}
 
-	async solicitarRecuperacion({
-		email,
-		captchaToken,
-	}: CredencialesRecuperacion): Promise<void> {
+	async solicitarRecuperacion(
+		{ email, captchaToken }: CredencialesRecuperacion,
+		redirectTo: string,
+	): Promise<void> {
 		const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-			redirectTo: `${this.origen}/auth/callback?next=/restablecer`,
+			redirectTo,
 			captchaToken,
 		});
 
@@ -77,12 +73,10 @@ export class SupabaseAuthGateway implements AuthGateway {
 		if (error) throw new Error(error.message);
 	}
 
-	async obtenerUrlGoogle(): Promise<string> {
+	async obtenerUrlGoogle(redirectTo: string): Promise<string> {
 		const { data, error } = await this.supabase.auth.signInWithOAuth({
 			provider: "google",
-			options: {
-				redirectTo: `${this.origen}/auth/callback?next=/generador`,
-			},
+			options: { redirectTo },
 		});
 
 		if (error || !data.url) {

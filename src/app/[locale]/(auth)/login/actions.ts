@@ -4,6 +4,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 // Infraestructura
+import { obtenerOrigen } from "@/adapters/inbound/next/origen";
 import { credencialesSchema } from "@/adapters/inbound/next/schemas/schemas";
 // Tipos
 import type { AuthState } from "@/app/auth-types";
@@ -73,7 +74,9 @@ export async function cerrarSesion(): Promise<void> {
 export async function iniciarConGoogle(formData: FormData): Promise<void> {
 	const locale = idioma(formData);
 	const deps = await crearContenedor();
-	const url = await deps.auth.obtenerUrlGoogle().catch(() => null);
+	const origen = await obtenerOrigen();
+	const redirectTo = `${origen}/auth/callback?next=${encodeURIComponent(ruta(locale, "/generator"))}`;
+	const url = await deps.auth.obtenerUrlGoogle(redirectTo).catch(() => null);
 
 	if (!url) redirect(ruta(locale, "/login"));
 
