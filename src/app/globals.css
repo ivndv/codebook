@@ -29,6 +29,7 @@
 	--color-code-function: #82aaff;
 	--color-code-variable: #89ddff;
 	--color-code-type: #ffcb6b;
+	--color-code-tag: #ff7b72;
 
 	/* Profundidad de tarjeta */
 	--shadow-card: 0 20px 45px -25px rgb(0 0 0 / 70%);
@@ -71,6 +72,7 @@ html[data-theme="light"] {
 	--color-code-function: #1d4ed8;
 	--color-code-variable: #0369a1;
 	--color-code-type: #a16207;
+	--color-code-tag: #be123c;
 
 	/* Profundidad de tarjeta */
 	--shadow-card: 0 20px 45px -25px rgb(20 18 26 / 25%);
@@ -107,10 +109,30 @@ pre {
 }
 
 .codigo-resaltado .hljs-keyword,
-.codigo-resaltado .hljs-selector-tag,
 .codigo-resaltado .hljs-literal,
 .codigo-resaltado .hljs-meta {
 	color: var(--color-code-keyword);
+}
+
+/* HTML: corchetes tenues y nombre de etiqueta en rojo */
+.codigo-resaltado .hljs-tag {
+	color: var(--color-muted);
+}
+
+.codigo-resaltado .hljs-name {
+	color: var(--color-code-tag);
+}
+
+/* CSS: selectores en amarillo y propiedades en cian */
+.codigo-resaltado .hljs-selector-tag,
+.codigo-resaltado .hljs-selector-class,
+.codigo-resaltado .hljs-selector-id,
+.codigo-resaltado .hljs-selector-pseudo {
+	color: var(--color-code-type);
+}
+
+.codigo-resaltado .hljs-attribute {
+	color: var(--color-code-variable);
 }
 
 .codigo-resaltado .hljs-string,
@@ -141,6 +163,11 @@ pre {
 .codigo-resaltado .hljs-built_in,
 .codigo-resaltado .hljs-title.class_ {
 	color: var(--color-code-type);
+}
+
+/* JS: interpolación de plantillas en cian */
+.codigo-resaltado .hljs-subst {
+	color: var(--color-code-variable);
 }
 
 /* Selección y foco con el acento del tema */
