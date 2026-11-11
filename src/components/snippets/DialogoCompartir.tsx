@@ -1,19 +1,45 @@
 "use client";
 
 // Iconos
-import { Check, Download, Link2, LoaderCircle, Share2, X } from "lucide-react";
+import {
+	Check,
+	Download,
+	Link2,
+	LoaderCircle,
+	Monitor,
+	Share2,
+	Smartphone,
+	X,
+} from "lucide-react";
 // React
 import { useEffect, useRef, useState } from "react";
 // Acciones
 import { compartirSnippet } from "@/app/actions/share";
 // Componentes
-import { TarjetaCompartir } from "@/components/snippets/TarjetaCompartir";
-import { botonPrimario, botonSecundario } from "@/components/ui/estilos";
+import {
+	type FormatoTarjeta,
+	TarjetaCompartir,
+} from "@/components/snippets/TarjetaCompartir";
+import {
+	botonPrimarioCompacto,
+	botonSecundarioCompacto,
+} from "@/components/ui/estilos";
 // Tipos
 import type { Snippet } from "@/core/snippets/domain/snippet";
 // Locales
 import { useLocale } from "@/i18n/LocaleProvider";
 import * as m from "@/paraglide/messages";
+
+// Anchos de la tarjeta según el formato
+const ANCHOS: Record<FormatoTarjeta, number> = {
+	escritorio: 800,
+	movil: 540,
+};
+const ALTO_MOVIL = 960;
+const ESCALA = 3;
+
+// Las fuentes embebidas se calculan una sola vez por sesión
+let fuentesEmbebidas: string | null = null;
 
 // Diálogo de compartir: PNG local + enlace público + Web Share
 export function DialogoCompartir({
@@ -31,6 +57,7 @@ export function DialogoCompartir({
 	const [copiado, setCopiado] = useState(false);
 	const [url, setUrl] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [formato, setFormato] = useState<FormatoTarjeta>("escritorio");
 
 	// Cierra con Escape
 	useEffect(() => {
@@ -68,15 +95,37 @@ export function DialogoCompartir({
 		setError(null);
 
 		try {
-			const { toPng } = await import("html-to-image");
-			const dataUrl = await toPng(tarjetaRef.current, {
-				pixelRatio: 2,
+			const { getFontEmbedCSS, toPng } = await import("html-to-image");
+			const nodo = tarjetaRef.current;
+			await document.fonts.ready;
+
+			// Incrusta las fuentes de next/font en el SVG de la captura
+			if (fuentesEmbebidas === null) {
+				try {
+					fuentesEmbebidas = await getFontEmbedCSS(nodo);
+				} catch (e) {
+					console.warn("[descargar] no se pudieron incrustar las fuentes", e);
+				}
+			}
+
+			const fontEmbedCSS = fuentesEmbebidas ?? undefined;
+
+			const opciones = {
+				width: ANCHOS[formato],
+				height: formato === "movil" ? ALTO_MOVIL : nodo.scrollHeight,
+				pixelRatio: ESCALA,
 				cacheBust: true,
-				backgroundColor: "#0f0e12",
-			});
+				backgroundColor: getComputedStyle(nodo).backgroundColor || "#0f0e12",
+				preferredFontFormat: "woff2" as const,
+				fontEmbedCSS,
+			};
+
+			// Primera captura: deja las fuentes listas para la definitiva
+			await toPng(nodo, opciones);
+			const dataUrl = await toPng(nodo, opciones);
 
 			const enlace = document.createElement("a");
-			enlace.download = `codebook-${actual.id.slice(0, 8)}.png`;
+			enlace.download = `codebook-${actual.id.slice(0, 8)}-${formato}.png`;
 			enlace.href = dataUrl;
 			enlace.click();
 		} catch (e) {
@@ -159,9 +208,59 @@ export function DialogoCompartir({
 					</button>
 				</div>
 
+				<fieldset className="mb-3 min-w-0">
+					<legend className="sr-only">
+						{m.snippet_share_format({}, { locale })}
+					</legend>
+
+					<div className="flex flex-wrap items-center gap-2">
+						<div className="flex gap-1 rounded-lg border border-border bg-bg p-1">
+							{(
+								[
+									[
+										"escritorio",
+										m.snippet_share_format_desktop({}, { locale }),
+										Monitor,
+									],
+									[
+										"movil",
+										m.snippet_share_format_mobile({}, { locale }),
+										Smartphone,
+									],
+								] as const
+							).map(([valor, etiqueta, Icono]) => (
+								<button
+									key={valor}
+									type="button"
+									aria-pressed={formato === valor}
+									onClick={() => setFormato(valor)}
+									className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium transition-colors ${
+										formato === valor
+											? "bg-accent-soft text-accent-text"
+											: "text-muted hover:text-text"
+									}`}
+								>
+									<Icono size={14} aria-hidden />
+									{etiqueta}
+								</button>
+							))}
+						</div>
+
+						<span className="text-[11px] text-muted">
+							{formato === "movil" ? "1620 × 2880 px" : "2400 px"}
+						</span>
+					</div>
+				</fieldset>
+
 				<div className="overflow-x-auto rounded-xl bg-bg p-3">
-					<div ref={tarjetaRef} className="mx-auto w-[800px]">
-						<TarjetaCompartir snippet={snippet} />
+					<div className="flex justify-center">
+						<div
+							ref={tarjetaRef}
+							className="bg-bg"
+							style={{ width: ANCHOS[formato] }}
+						>
+							<TarjetaCompartir snippet={snippet} formato={formato} />
+						</div>
 					</div>
 				</div>
 
@@ -181,12 +280,12 @@ export function DialogoCompartir({
 						type="button"
 						onClick={() => void descargar()}
 						disabled={generando}
-						className={botonPrimario}
+						className={botonPrimarioCompacto}
 					>
 						{generando ? (
-							<LoaderCircle size={16} aria-hidden className="animate-spin" />
+							<LoaderCircle size={14} aria-hidden className="animate-spin" />
 						) : (
-							<Download size={16} aria-hidden />
+							<Download size={14} aria-hidden />
 						)}
 						{m.snippet_download_png({}, { locale })}
 					</button>
@@ -195,12 +294,12 @@ export function DialogoCompartir({
 						type="button"
 						onClick={() => void copiarEnlace()}
 						disabled={generando}
-						className={botonSecundario}
+						className={botonSecundarioCompacto}
 					>
 						{copiado ? (
-							<Check size={16} aria-hidden />
+							<Check size={14} aria-hidden />
 						) : (
-							<Link2 size={16} aria-hidden />
+							<Link2 size={14} aria-hidden />
 						)}
 						{copiado
 							? m.common_copied({}, { locale })
@@ -211,9 +310,9 @@ export function DialogoCompartir({
 						type="button"
 						onClick={() => void compartir()}
 						disabled={generando}
-						className={botonSecundario}
+						className={botonSecundarioCompacto}
 					>
-						<Share2 size={16} aria-hidden />
+						<Share2 size={14} aria-hidden />
 						{m.common_share({}, { locale })}
 					</button>
 				</div>
