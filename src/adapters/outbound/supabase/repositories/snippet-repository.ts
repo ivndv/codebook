@@ -53,43 +53,55 @@ export class SupabaseSnippetRepository implements SnippetRepository {
 		const desde = (pagina - 1) * SNIPPETS_POR_PAGINA;
 		const hasta = desde + SNIPPETS_POR_PAGINA - 1;
 
-		// 2. Arma la consulta con filtros (RLS filtra por auth.uid())
-		let consulta = this.supabase
-			.from("snippets")
-			.select("*", { count: "exact" });
+		// 2. Constructor de la consulta con filtros (RLS filtra por auth.uid())
+		const consulta = () => {
+			let q = this.supabase.from("snippets").select("*", { count: "exact" });
+			const busqueda = sanitizarBusqueda(filtros.busqueda);
 
-		const busqueda = sanitizarBusqueda(filtros.busqueda);
+			if (busqueda) {
+				const patron = `%${busqueda}%`;
 
-		if (busqueda) {
-			const patron = `%${busqueda}%`;
-
-			if (filtros.alcance === "codigo") {
-				consulta = consulta.ilike("code", patron);
-			} else if (filtros.alcance === "explicacion") {
-				consulta = consulta.ilike("explanation", patron);
-			} else {
-				consulta = consulta.or(
-					`explanation.ilike.${patron},code.ilike.${patron}`,
-				);
+				if (filtros.alcance === "codigo") {
+					q = q.ilike("code", patron);
+				} else if (filtros.alcance === "explicacion") {
+					q = q.ilike("explanation", patron);
+				} else {
+					q = q.or(`explanation.ilike.${patron},code.ilike.${patron}`);
+				}
 			}
+
+			if (filtros.lenguaje) {
+				q = q.eq("language", filtros.lenguaje);
+			}
+
+			const corte = desdeFecha(filtros.fecha);
+
+			if (corte) {
+				q = q.gte("created_at", corte);
+			}
+
+			return q.order("created_at", {
+				ascending: filtros.orden === "antiguos",
+			});
+		};
+
+		// 3. Pide la página; si ya no existe, pide la primera para que la UI redirija
+		const { data, count, error } = await consulta().range(desde, hasta);
+		const fueraDeRango =
+			error?.code === "PGRST103" ||
+			/range not satisfiable/i.test(error?.message ?? "");
+
+		if (fueraDeRango) {
+			const {
+				data: primera,
+				count: total,
+				error: errorPrimera,
+			} = await consulta().range(0, SNIPPETS_POR_PAGINA - 1);
+
+			if (errorPrimera) throw new Error(errorPrimera.message);
+
+			return { snippets: (primera ?? []).map(mapear), total: total ?? 0 };
 		}
-
-		if (filtros.lenguaje) {
-			consulta = consulta.eq("language", filtros.lenguaje);
-		}
-
-		const corte = desdeFecha(filtros.fecha);
-
-		if (corte) {
-			consulta = consulta.gte("created_at", corte);
-		}
-
-		// 3. Orden pedido
-		consulta = consulta.order("created_at", {
-			ascending: filtros.orden === "antiguos",
-		});
-
-		const { data, count, error } = await consulta.range(desde, hasta);
 
 		if (error) throw new Error(error.message);
 
